@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.venv/
+data/daten-raw/
+*.jsonl
+.DS_Store
+test-results/

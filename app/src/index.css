@@ -1,0 +1,795 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   Inside the Machine - globale Design-Skala
+   SINGLE SOURCE OF TRUTH: diese Datei + app/src/theme.js (Werte muessen matchen).
+   Phase 1 = Tokens + Utility-Klassen. Komponenten werden in Phase 2 angebunden;
+   die bestehenden Klassen (.display/.mono/.kicker/.act/.prose/.viz/.sr-only)
+   bleiben daher erhalten, bis die Komponenten umgestellt sind.
+   ============================================================================ */
+:root {
+  /* --- Spacing (4/8-Basis) --- */
+  --s-0: 0;
+  --s-1: 0.25rem;   /*  4px */
+  --s-2: 0.5rem;    /*  8px */
+  --s-3: 0.75rem;   /* 12px */
+  --s-4: 1rem;      /* 16px */
+  --s-5: 1.25rem;   /* 20px */
+  --s-6: 1.5rem;    /* 24px */
+  --s-8: 2rem;      /* 32px */
+  --s-10: 2.5rem;   /* 40px */
+  --s-12: 3rem;     /* 48px */
+  --s-16: 4rem;     /* 64px */
+  --s-18: 4.5rem;   /* 72px */
+  --s-20: 5rem;     /* 80px */
+  --s-24: 6rem;     /* 96px */
+
+  /* --- Farben (Aliase kollabiert; synchron mit theme.js PAL) --- */
+  --bg: #0b0a0c;                      /* warmes Fast-Schwarz */
+  --panel: #15131a;                   /* solides warmes Panel */
+  --panel-2: rgba(21, 19, 26, 0.95);  /* transluzentes warmes Panel (Tooltips/Karten) */
+  --scrim: rgba(7, 6, 10, 0.88);      /* Vollbild-Backdrop (Explorer) */
+  --ink: #ece8e1;                     /* Text */
+  --muted: #969089;                   /* sekundaerer Text */
+  --grid: rgba(236, 232, 225, 0.07);  /* Gitterlinien */
+  --axis: rgba(236, 232, 225, 0.32);  /* Achsen */
+  --hairline: rgba(236, 232, 225, 0.12); /* neutrale Raender */
+  --machine: #d6409f;                 /* Maschine = Magenta (Akzent/Selektion) */
+  --machine-soft: rgba(214, 64, 159, 0.15);
+  --machine-line: rgba(214, 64, 159, 0.5);  /* Panel-Raender in Akzentfarbe */
+  --machine-rule: rgba(214, 64, 159, 0.26); /* Kicker-Hairline */
+  --on-accent: #fff0f6;               /* Text auf Magenta */
+  --human: #45bcc0;                   /* Mensch = Teal */
+  --star: #dfe8ff;                    /* Galaxie-Sonnen (Akt 3) */
+  --merge: #ffd700;                   /* Supernova-Gold: Merge-Kanten/-Knoten (Akt 3) */
+  --ok: #34d399;                      /* Outcome richtig (Akt 5) */
+  --no: #fb7185;                      /* Outcome falsch (Akt 5) */
+
+  /* --- Layout --- */
+  --container: 1320px;                /* = interne Viz-Breite W -> Viz fuellt die Spalte exakt */
+  --measure: 64ch;                    /* Textspaltenbreite (Lead/Body) */
+}
+
+html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+:focus-visible { outline: 2px solid var(--machine); outline-offset: 3px; }
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: var(--bg);
+}
+
+/* feine Korn-Textur (Film/Observatorium) statt Neon-Glow */
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* warme Vignette: Tiefe ueber Rand-Verdunkelung (Tufte: keine dekorativen Glows) */
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 1;
+  background: radial-gradient(130% 100% at 50% 40%, transparent 60%, rgba(0, 0, 0, 0.32) 100%);
+}
+
+/* ============================================================================
+   TYPOGRAFIE - Utility-Klassen (3 Google Fonts, klare Rollen)
+   ============================================================================ */
+.t-display-xl { font-family: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', Georgia, serif; font-weight: 800; font-size: clamp(3rem, 9vw, 8rem);       line-height: 0.9;  letter-spacing: -0.03em; }
+.t-display-l  { font-family: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', Georgia, serif; font-weight: 700; font-size: clamp(2.2rem, 6vw, 4.5rem);   line-height: 0.98; letter-spacing: -0.02em; }
+.t-display-s  { font-family: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', Georgia, serif; font-weight: 700; font-size: clamp(1.25rem, 2.2vw, 1.75rem); line-height: 1.3; letter-spacing: -0.01em; }
+.t-lead  { font-family: 'Hanken Grotesk', system-ui, sans-serif; font-weight: 400; font-size: clamp(1.1rem, 1.6vw, 1.4rem); line-height: 1.55; }
+.t-body  { font-family: 'Hanken Grotesk', system-ui, sans-serif; font-weight: 400; font-size: clamp(1rem, 1.3vw, 1.2rem);   line-height: 1.6; }
+.t-label { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-weight: 700; font-size: 0.74rem; line-height: 1;   letter-spacing: 0.22em; text-transform: uppercase; }
+.t-data  { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-weight: 500; font-size: 0.78rem; line-height: 1.5; font-variant-numeric: tabular-nums; }
+
+/* ---- Bestehende Typo-Klassen (von Komponenten genutzt; bleiben bis Phase 2) ---- */
+.display { font-family: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', Georgia, serif; font-weight: 700; letter-spacing: -0.02em; }
+.mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+/* Plattennummer (redaktionell): Bricolage-Versalien + Hairline-Regel. Mono ist Datenlabels vorbehalten. */
+.kicker {
+  display: flex; align-items: center; gap: var(--s-3);
+  font-family: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', Georgia, serif;
+  text-transform: uppercase; letter-spacing: 0.22em;
+  font-size: 0.74rem; font-weight: 700; color: var(--machine);
+}
+.kicker::after { content: ''; flex: 1; height: 1px; background: var(--machine-rule); }
+
+/* ============================================================================
+   LAYOUT - Editorial-Container + 12-Spalten-Grid
+   ============================================================================ */
+.layout-container {
+  width: 100%; max-width: var(--container); margin-inline: auto;
+  padding-inline: clamp(var(--s-5), 4vw, var(--s-16));
+}
+.editorial-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--s-6);
+}
+/* Textinhalt: Spalten 1-7, lesbare Zeilenlaenge */
+.text-column { grid-column: 1 / 8; max-width: var(--measure); }
+@media (max-width: 720px) { .text-column { grid-column: 1 / -1; } }
+
+/* ---- Akt-Wrapper: liefert NUR die vertikale Sektion (Phase 2). Breite + horizontales
+   Padding kommen jetzt von .layout-container; der Akt-Inhalt wird in
+   .layout-container > .editorial-grid gewickelt. ---- */
+.act {
+  position: relative;
+  min-height: 100vh;
+  padding-block: clamp(var(--s-10), 5vh, var(--s-16));
+  display: flex; flex-direction: column; justify-content: flex-start;
+}
+.prose { max-width: 56ch; }
+.prose p { overflow-wrap: anywhere; text-wrap: pretty; }
+.viz { width: 100%; position: relative; }
+.viz svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+/* wiederverwendbare Karte (frueher .step-card; jetzt Tokens, ohne Scrolly-Reveal-Mechanik) */
+.step-card {
+  background: var(--panel-2);
+  border: 1px solid var(--machine-line);
+  border-left: 3px solid var(--machine);
+  border-radius: 4px;
+  padding: var(--s-6);
+  backdrop-filter: blur(8px);
+}
+
+/* Quiz-Antwortkarten (Akt 5): anklickbares Gefuehl - Rand hellt beim Hover auf, leichter Lift.
+   Outcome-Rand (richtig/falsch) wird per Inline-borderColor gesetzt und gewinnt gegen die Klasse. */
+.quiz-card {
+  background: var(--panel-2);
+  border: 1.5px solid var(--hairline);
+  border-radius: 6px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.quiz-card:hover:not(:disabled) { border-color: var(--machine-line); transform: translateY(-2px); }
+.quiz-card:disabled { cursor: default; transform: none; }
+
+/* Feld-Labels auf der Karte (Akt 2): HTML-Overlays als Hover-Zonen. Halo via text-shadow gegen die
+   leuchtende Nebula (ersetzt den Canvas-strokeText-Halo). Hover/Fokus -> Akzent. */
+.map-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-weight: 600;
+  font-size: clamp(0.68rem, 0.9vw, 0.92rem);
+  white-space: nowrap;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 6px 8px;
+  text-shadow: 0 0 7px var(--bg), 0 0 7px var(--bg), 0 0 4px var(--bg);
+  transition: color 0.15s ease, text-shadow 0.15s ease;
+}
+.map-label:hover, .map-label:focus-visible {
+  color: var(--machine);
+  text-shadow: 0 0 10px var(--bg), 0 0 10px var(--bg), 0 0 5px var(--bg);
+  outline: none;
+}
+/* Zaehler-Chip am Feld-Label (Akt 2): Paper bis zum Scroll-Jahr. */
+.map-chip {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  background: rgba(11, 10, 12, 0.72);
+  border: 1px solid var(--hairline);
+  color: var(--muted);
+  vertical-align: 1px;
+}
+
+/* ============================================================================
+   AKT 4, EBENE 1 "WOFUER REDET DIE WELT MIT DER MASCHINE"
+   Eine 100-%-Aufteilung der 9 Nutzungs-Kategorien, direkt beschriftet. Das Band
+   und die Labelzeile teilen dieselben Flex-Anteile, deshalb sitzt jedes Label
+   exakt unter seinem Segment (Beschriftung an der Mark statt Farb-Legende).
+   ============================================================================ */
+/* Breite in px, nicht in ch: ch bezieht sich auf die Schriftgroesse DIESES Containers (16 px),
+   nicht auf die 72 px der Ueberschrift - eine ch-Grenze macht die Frage sonst funfzeilig und
+   schiebt den Schalter unter die Kante. Bei 1440 px bricht sie so auf zwei Zeilen. */
+.useov-head { grid-column: 1 / -1; max-width: min(100%, 900px); }
+.useov-bar { grid-column: 1 / -1; min-width: 0; margin-top: var(--s-12); }
+
+.useov-band {
+  display: flex;
+  width: 100%;
+  height: clamp(52px, 4.4vw, 66px);
+  border-radius: 4px;
+  overflow: hidden;
+}
+/* flex-grow kommt inline aus dem Anteil; Basis 0 macht die Breiten exakt proportional.
+   Seit die Segmente Schaltflaechen sind: Button-Chrome vollstaendig zuruecksetzen, sonst
+   zerlegen Rand und Innenabstand die Proportionen, die die ganze Aussage tragen. */
+.useov-seg {
+  flex: 0 1 0;
+  min-width: 0;
+  display: block;
+  appearance: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  transition: filter 140ms ease-out, transform 140ms ease-out;
+}
+/* Affordanz ohne Farbwechsel: das Segment wird heller und hebt sich minimal, seine FARBE bleibt
+   die Kategorie. Ein Farbwechsel waere hier eine Falschaussage. */
+.useov-seg:hover, .useov-seg:focus-visible { filter: brightness(1.22); transform: translateY(-3px); z-index: 1; }
+.useov-seg:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .useov-seg { transition: none; }
+  .useov-seg:hover, .useov-seg:focus-visible { transform: none; }
+}
+
+.useov-labels { display: flex; width: 100%; }
+.useov-label {
+  flex: 0 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  /* Die 2-px-Regel in Segmentfarbe ist die Bindung Label <-> Mark, sie MUSS deshalb exakt so
+     breit sein wie ihr Segment. Ein padding-right auf dieser Box tut das Gegenteil: bei
+     flex-basis 0 reserviert jedes Label seinen Innenabstand VOR der Verteilung des freien
+     Raums, die sieben Labels verschieben sich dadurch gegen die neun Segmente, und die
+     Farbregel lag bis zu 15,6 px unter dem NACHBARsegment (gemessen bei 1.192 px Bandbreite).
+     Der Textabstand kommt darum vom Inhalt, nicht von der Box. */
+  border-top: 2px solid transparent;
+  padding-top: var(--s-3);
+}
+.useov-label-pct, .useov-label-cat { padding-right: 0.7rem; }
+.useov-label--rest { border-top-color: var(--hairline); }
+.useov-label-pct { font-size: clamp(1.05rem, 1.5vw, 1.6rem); line-height: 1; color: var(--ink); }
+.useov-label-cat {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: clamp(9.5px, 0.72vw, 11px);
+  line-height: 1.35;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+/* Kopfzahlen NACH dem Blatt. Sie standen davor und kosteten dort 120 px, bevor die Grafik
+   ueberhaupt anfing; als Befund ueber das Blatt stehen sie jetzt darunter. */
+/* Die Legende: vier Kacheln, jede zeigt ihre Mark. Sie steht zwischen Bedienleiste und Blatt,
+   also genau dort, wo man sie braucht. */
+.sheet-legend {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+  gap: var(--s-5) var(--s-6);
+  margin-top: var(--s-6);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--hairline);
+}
+.sheet-legend-tile { min-width: 0; }
+
+.ledger-tally {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-6);
+  flex-wrap: wrap;
+  margin-top: var(--s-8);
+}
+.useov-pickhint {
+  margin: var(--s-4) 0 0;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--ink);
+  display: flex;
+  gap: 0.45rem;
+}
+.useov-pickhint > span { color: var(--machine); }
+.useov-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--s-3) var(--s-8);
+  margin-top: var(--s-4);
+}
+.useov-tag {
+  margin: 0;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 48ch;
+}
+.useov-tag--end {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 0.15rem 0.7rem;
+  text-align: right;
+}
+.useov-tag-lead { color: var(--ink); }
+.useov-chip { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.useov-swatch { width: 8px; height: 8px; border-radius: 2px; flex: 0 0 auto; }
+
+/* Schmaler Viewport: dieselbe Aufteilung als Zeilenliste, Label links an der Mark. */
+.useov-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.useov-row { display: block; }
+/* Der Button traegt das Grid, nicht das li: sonst bricht die Spaltenaufteilung, sobald der
+   Button als einziges Kind dazwischensteht. */
+.useov-row-btn {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(0, 8.6rem) minmax(0, 1fr) 3.4rem;
+  align-items: center;
+  gap: 0.55rem;
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 2px 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.useov-row-btn:hover .useov-row-bar, .useov-row-btn:focus-visible .useov-row-bar { filter: brightness(1.22); }
+.useov-row-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 3px; }
+.useov-row-cat { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11px; color: var(--ink); }
+.useov-row-track { height: 15px; background: rgba(236, 232, 225, 0.06); border-radius: 2px; overflow: hidden; }
+.useov-row-bar { display: block; height: 100%; min-width: 2px; }
+.useov-row-pct { font-size: 11px; color: var(--muted); text-align: right; }
+
+/* Datenkontext und Aufhaenger nebeneinander, darunter der Schalter. */
+.useov-text {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
+  gap: var(--s-5) var(--s-10);
+  margin-top: var(--s-12);
+}
+.useov-text p { max-width: var(--measure); }
+.useov-switch {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-4) var(--s-6);
+  margin-top: var(--s-12);
+}
+.useov-switch-hint { color: var(--muted); font-size: 0.68rem; max-width: 44ch; }
+
+/* Der Schalter zur zweiten Ebene: der einzige gefuellte Magenta-Knopf der Story.
+   Magenta bleibt reserviert (Maschine/Fokus/Selektion) - hier markiert es den
+   Uebergang author-driven -> reader-driven, nicht eine Kategorie. */
+.ledger-open-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+  color: var(--on-accent);
+  background: var(--machine);
+  border: 1px solid var(--machine);
+  border-radius: 999px;
+  padding: 0.62rem 1.25rem;
+  cursor: pointer;
+}
+.ledger-open-btn::after { content: '↓'; }
+.ledger-open-btn--open { color: var(--machine); background: transparent; }
+.ledger-open-btn--open::after { content: '↑'; }
+
+/* ============================================================================
+   AKT 4 "DAS REGISTER" - das Blatt und seine Bedienschicht
+   Keine neuen Tokens: alle Farben und Abstaende kommen aus :root.
+   ============================================================================ */
+
+/* Lesehilfe: sie sitzt direkt am Blatt und benennt die Spalten in Leserichtung.
+   Sie ersetzt den frueheren Mechanik-Absatz im Einstieg (der beschrieb die Bauart
+   der Grafik, bevor der Leser wusste, worum es geht). */
+.ledger-guide {
+  grid-column: 1 / -1;
+  margin-top: var(--s-6);
+  border-left: 2px solid var(--machine-rule);
+  padding-left: var(--s-4);
+  max-width: 104ch;
+}
+
+/* Bedienschicht als drei BENANNTE Gruppen statt einer flachen Chip-Wand:
+   Wofür (Encode/Filter der 9 Kategorien), Ansicht (Schalter), Bedienung (Hinweise). */
+.ledger-controls {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--s-3) var(--s-4);
+  align-items: baseline;
+  margin-top: var(--s-6);
+}
+.ledger-controls-set { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.6rem; min-width: 0; }
+.ledger-controls-wide { grid-column: 1 / -1; }
+@media (max-width: 720px) {
+  .ledger-controls { grid-template-columns: minmax(0, 1fr); gap: var(--s-2); }
+  .ledger-controls-wide { grid-column: auto; }
+}
+
+/* Die Pointe steht UNTER dem Blatt: erst die These, dann die Widerlegung. Eigenes
+   12er-Raster, damit Text (1-7) und Streudiagramm (8-12) dieselbe Kante halten. */
+.ledger-pointe {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--s-6);
+  margin-top: var(--s-12);
+}
+
+/* Unter 980 px bleibt das Blatt intern 1320 px breit und scrollt in SEINEM EIGENEN Wrapper.
+   Der Seiten-Scrollbereich bleibt dadurch unberuehrt (Bedingung aus scripts/e2e.mjs:
+   document.scrollWidth === clientWidth bei 1440 UND 390 px). min-width: 0 verhindert, dass
+   der Grid-Track vom Inhalt aufgeblasen wird. */
+.ledger-scroll {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+/* Grundflaeche: heller Slab auf fast-schwarzem Grund. Figur-Grund-Umkehr (Ware) als
+   Sequenzsignal - nach drei Akten Teleskop liegt hier ein Dokument auf dem Tisch. */
+.ledger-sheet {
+  position: relative;
+  min-width: 980px;
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+}
+.ledger-sheet canvas { border-radius: 8px; }
+
+/* 53 transparente Zeilen-Buttons: unsichtbar bis :focus-visible, volle Trefferflaeche.
+   Muster wie .map-label in Akt 2. */
+.ledger-row-btn {
+  position: absolute;
+  left: 0; right: 0;
+  margin: 0; padding: 0;
+  background: transparent;
+  border: 0;
+  opacity: 0;
+  /* Die Maus wird vom Canvas darunter bedient (ein arithmetischer Hit-Test statt 53 Overlays).
+     pointer-events: none nimmt die Buttons aus dem Maus-Hittest, laesst Tab-Fokus und
+     Tastaturaktivierung mit Enter/Leertaste aber unveraendert. */
+  pointer-events: none;
+}
+.ledger-row-btn:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--machine);
+  outline-offset: -2px;
+}
+
+/* Spaltenkopf als echter Button ueber dem Canvas. Mono-Versalien, gesperrt. */
+.ledger-colhead {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  margin: 0; padding: 0;
+  background: transparent;
+  border: 0;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-weight: 700;
+  font-size: clamp(7px, 0.68vw, 9.5px);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+}
+.ledger-colhead--static { cursor: default; pointer-events: none; }
+
+/* Die sechs Ehrlichkeitssaetze. Ab 1200 px stehen sie unter IHRER Spalte (12er-Raster ueber
+   dieselben 1320 px wie das Blatt), darunter fliessen sie in lesbare Bloecke um. */
+/* Der Beleg steht neben dem Lead-Text; auf schmalen Viewports darunter in voller Breite. */
+.ledger-evidence { grid-column: 8 / -1; min-width: 0; }
+@media (max-width: 720px) { .ledger-evidence { grid-column: 1 / -1; } }
+
+/* GLEICH BREITE SPALTEN. Vorher sassen die Notizen auf den x-Positionen ihrer Blattspalten
+   (start/span im 12er-Raster). Die Idee war gut, das Ergebnis nicht: die Textlaengen
+   unterscheiden sich um Faktor vier, dadurch war eine Spalte 60 px hoch und die daneben 700,
+   mit zerrissenem Flattersatz. Gleich breite Spalten in Lesereihenfolge sind hier ruhiger, und
+   die Zuordnung leistet ohnehin die Ueberschrift jeder Notiz. */
+.ledger-notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: var(--s-6) var(--s-8);
+  margin-top: var(--s-5);
+  align-items: start;
+}
+.ledger-note {
+  border-top: 1px solid var(--hairline);
+  padding-top: var(--s-3);
+  min-width: 0;
+  text-wrap: pretty;
+  hyphens: none;
+}
+
+/* Belegstrich-Buttons: nur in der gewaehlten Zeile, Trefferflaeche 8,7 x 22 px.
+   Wie die Zeilen-Buttons unsichtbar bis :focus-visible und aus dem Maus-Hittest genommen -
+   die Maus bedient das Canvas darunter, die Tastatur bedient diese Buttons. */
+.ledger-doc-btn {
+  position: absolute;
+  margin: 0; padding: 0;
+  background: transparent;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.ledger-doc-btn:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--machine);
+  outline-offset: 0;
+}
+
+/* ---- Das Dossier: Slot FESTER Hoehe, kein Akkordeon, keine Hoehenanimation ---- */
+.ledger-dossier {
+  position: relative;
+  /* Feste Hoehe je Spaltenzahl, gesetzt aus LedgerDossier.jsx (dort stehen die Messwerte).
+     overflow-y bleibt als Netz stehen: wenn eine Schrift breiter laedt als gemessen, scrollt
+     das Band lieber, als Inhalt abzuschneiden. */
+  height: var(--dossier-h, 1060px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: var(--s-4) var(--s-5);
+  scrollbar-gutter: stable;
+}
+/* Vor der ersten Auswahl nur so hoch wie der Einladungstext. Die Regel steht NACH den
+   Breakpoint-Regeln, damit sie in jeder Breite gewinnt. */
+@media (max-width: 1279px) { .ledger-dossier { height: var(--dossier-h-3, 1320px); } }
+@media (max-width: 767px) { .ledger-dossier { height: var(--dossier-h-1, 1860px); } }
+.ledger-dossier--empty { height: var(--dossier-h-empty, 200px); }
+/* Kennzahlen im Dossier als Liste statt als Fliesstext: jeder Wert bleibt geschlossen,
+   die Zeilen sind links buendig, und die Umbruchstelle wandert nicht mit der Spaltenbreite. */
+.ledger-facts {
+  list-style: none;
+  margin: 0 0 0.55rem;
+  padding: 0;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.66rem;
+  line-height: 1.65;
+  color: var(--muted);
+}
+.ledger-facts li { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ledger-dossier-empty { display: flex; flex-direction: column; justify-content: center; height: 100%; }
+/* Im Dossier stehen viele schmale Spalten. Blocksatz und Silbentrennung erzeugen darin die
+   zerrissenen Zeilen, die im Test auffielen; linksbuendig mit balance ist hier ruhiger. */
+.ledger-dossier-grid p { text-wrap: pretty; hyphens: none; }
+.ledger-dossier-grid {
+  display: grid;
+  /* 250px statt 280px: erst dadurch passen auf der Blattbreite VIER Spalten statt drei.
+     Mit drei Spalten wurde die erste dreimal so hoch wie die anderen und das Band musste
+     innen scrollen. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: var(--s-5) var(--s-6);
+  margin-top: var(--s-4);
+}
+/* Das Zeilen-Echo behaelt die 1320-px-Geometrie des Blattes und scrollt in SEINEM eigenen
+   Wrapper - genau wie das Blatt selbst. Der Seiten-Scrollbereich bleibt unberuehrt. */
+.ledger-echo { width: 100%; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; }
+
+@keyframes ledgerFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ledgerRise { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: none; } }
+
+/* Der Belegstapel darf bei schmalem Viewport nicht beschnitten werden: die BREITE traegt hier
+   den Wert. Lieber ein eigener horizontaler Scrollbereich als eine abgeschnittene Kodierung -
+   der Seiten-Scrollbereich bleibt davon unberuehrt. */
+.ledger-doclist { list-style: none; margin: 0; padding: 0; }
+/* Der Scroller sitzt um Lineal UND Liste, damit die Quantils-Ticks mit den Blockbreiten
+   mitwandern statt an der Panelkante abgeschnitten zu werden (gemessen: p90 war bei 390 px
+   Fensterbreite 257 px ausserhalb). min-width 0 laesst das Grid-Item ueberhaupt schrumpfen. */
+.ledger-docscroll { min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; }
+/* Text als Mark: die BREITE traegt den Wert, der Text sitzt IM Block. Deshalb nowrap + hidden -
+   sonst bestimmte die proportionale Schrift mit, wie lang ein Text aussieht. */
+.ledger-docblock {
+  flex: 0 0 auto;
+  display: block;
+  text-align: left;
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+  height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  background: rgba(236, 232, 225, 0.03);
+  border: 0;
+  padding: 0 4px;
+  cursor: pointer;
+}
+.ledger-docblock:hover { background: rgba(236, 232, 225, 0.075); }
+.ledger-reveal {
+  font-size: 0.62rem;
+  color: var(--machine);
+  background: transparent;
+  border: 1px solid var(--machine-line);
+  border-radius: 999px;
+  padding: 0.12rem 0.5rem;
+  cursor: pointer;
+}
+
+/* ---- Der Lesetisch: das zweite Bild ---- */
+.ledger-desk-scrim {
+  position: fixed; inset: 0; z-index: 90;
+  background: var(--scrim);
+  display: flex; align-items: center; justify-content: center;
+  padding: clamp(var(--s-3), 3vw, var(--s-8));
+  overflow-y: auto;
+}
+.ledger-desk {
+  width: 100%;
+  max-width: 1080px;
+  max-height: 100%;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: clamp(var(--s-4), 2.5vw, var(--s-8));
+}
+.ledger-desk-sig {
+  margin: 0 0 var(--s-4);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+/* Spaltenzahl kommt inline aus der Komponente (mit/ohne Score-Spalte): kein :has()-Selektor,
+   damit die Aufteilung nicht von der Browserunterstuetzung eines Selektors abhaengt. */
+.ledger-desk-grid {
+  display: grid;
+  gap: var(--s-5);
+  align-items: start;
+}
+.ledger-desk-main { min-width: 0; }
+/* Der Text ist der Held: kein Kasten, kein Schatten, Originalschrift und Originalsprache.
+   Groesse adaptiv nach Laenge - ein 80-Zeichen-Prompt darf nicht wie eine Fussnote aussehen. */
+.ledger-desk-text {
+  margin: 0;
+  max-width: 62ch;
+  line-height: 1.55;
+  color: var(--ink);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ledger-warncard {
+  border: 1px solid var(--machine-line);
+  border-left: 3px solid var(--machine);
+  border-radius: 4px;
+  padding: var(--s-4);
+  background: rgba(214, 64, 159, 0.05);
+}
+.ledger-desk-foot {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: var(--s-4);
+  margin-top: var(--s-6);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--hairline);
+}
+.ledger-desk-nav {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3);
+  margin-top: var(--s-5);
+}
+.ledger-navbtn {
+  font-size: 0.64rem;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  padding: 0.26rem 0.7rem;
+  cursor: pointer;
+}
+.ledger-navbtn:hover:not(:disabled) { border-color: var(--machine-line); color: var(--machine); }
+.ledger-navbtn:disabled { opacity: 0.35; cursor: default; }
+.ledger-navbtn--close { border-color: var(--machine-line); color: var(--machine); }
+
+/* Unter 720 px wird der Lesetisch Vollbild ohne Randspalten; die Laengenleiter wandert als
+   horizontaler Streifen unter die Signaturzeile (Desktop-first ist deklariert, s. Paper). */
+@media (max-width: 720px) {
+  .ledger-desk-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .ledger-desk-ladder { max-width: 260px; }
+  .ledger-desk-score { max-width: 260px; }
+}
+
+/* nur fuer Screenreader */
+.sr-only {
+  position: absolute !important; width: 1px !important; max-width: 1px !important;
+  height: 1px !important; padding: 0 !important; margin: -1px !important;
+  overflow: hidden !important; clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important; white-space: nowrap !important; border-width: 0 !important;
+  contain: strict;
+}
+/* Tabellen behalten sonst trotz width:1px ihre Min-Content-Breite und erzeugen auf Mobilgeräten
+   horizontalen Seitenscroll. Als Block bleiben Inhalt und Semantik im Accessibility-Tree erhalten. */
+table.sr-only { display: block; table-layout: fixed; }
+
+/* ============================================================================
+   QUELLEN-NACHWEIS (SourceNote): eingeklappt eine Zeile, aufgeklappt der volle
+   Nachweis. Natives <details>, damit Tastatur und Screenreader ohne JS funktionieren.
+   ============================================================================ */
+/* --- Akt 5, Abschluss ---------------------------------------------------------------------
+   Zwei Spalten fuer den Merkmals-Vergleich (Text | Bild): nebeneinander macht der Vergleich
+   die Arbeit, gestapelt waere es zweimal Fliesstext. Unter 860px stapeln sie, weil 46ch pro
+   Spalte dann nicht mehr in eine Spalte passen. */
+.spot-tells {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: var(--s-8) var(--s-10);
+}
+/* Prosa links, die eigene Messung rechts als Kennzahlen-Block. Ab 900px zweispaltig. */
+.spot-outlook {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: var(--s-6) var(--s-10);
+  align-items: start;
+}
+/* Der Herkunfts-Block: Behauptung und Gegenevidenz nebeneinander, damit die Einschraenkung
+   nicht als Fussnote unter der Beruhigung steht. */
+/* Die Abschluss-Grafik hat eine Mindestbreite (40 Monatsbalken); darunter scrollt sie in ihrem
+   eigenen Container, statt zur unlesbaren Textur zu schrumpfen. Muster wie .ledger-echo. */
+.spot-chartscroll { min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; }
+.spot-prov {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: var(--s-4) var(--s-10);
+  margin-top: var(--s-8);
+}
+@media (max-width: 899px) {
+  .spot-outlook > aside { border-left: none; border-top: 1px solid var(--hairline); padding-left: 0; padding-top: var(--s-5); }
+}
+
+.source-note {
+  margin-top: var(--s-8);
+  max-width: 78ch;
+  border-top: 1px solid var(--hairline);
+  padding-top: var(--s-3);
+}
+.source-note > summary {
+  cursor: pointer;
+  color: var(--muted);
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-1) 0;
+}
+.source-note > summary::-webkit-details-marker { display: none; }
+.source-note > summary::before {
+  content: '+';
+  display: inline-block;
+  width: 1em;
+  font-variant-numeric: tabular-nums;
+  color: var(--machine);
+}
+.source-note[open] > summary::before { content: '\2212'; } /* Minus U+2212, nicht Bindestrich */
+.source-note > summary:hover { color: var(--ink); }
+.source-note-body {
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: var(--s-3);
+}

@@ -1,0 +1,1602 @@
+[
+  {
+    "id": "s0000",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0001",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0002",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0003",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0004",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0005",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0006",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0007",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0008",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0009",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0010",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0011",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0012",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0013",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0014",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0015",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0016",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0017",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0018",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0019",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0020",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0021",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0022",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0023",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0024",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0025",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0026",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0027",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0028",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0029",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0030",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0031",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0032",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0033",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0034",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0035",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0036",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0037",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0038",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0039",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0040",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0041",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0042",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0043",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0044",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0045",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0046",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0047",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0048",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0049",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0050",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0051",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0052",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0053",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0054",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0055",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0056",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0057",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0058",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0059",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0060",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0061",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0062",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0063",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0064",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0065",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0066",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0067",
+    "cat": "Ratschlag"
+  },
+  {
+    "id": "s0068",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0069",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0070",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0071",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0072",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0073",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0074",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0075",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0076",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0077",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0078",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0079",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0080",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0081",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0082",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0083",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0084",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0085",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0086",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0087",
+    "cat": "Ratschlag"
+  },
+  {
+    "id": "s0088",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0089",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0090",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0091",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0092",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0093",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0094",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0095",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0096",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0097",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0098",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0099",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0100",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0101",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0102",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0103",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0104",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0105",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0106",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0107",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0108",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0109",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0110",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0111",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0112",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0113",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0114",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0115",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0116",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0117",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0118",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0119",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0120",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0121",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0122",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0123",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0124",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0125",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0126",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0127",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0128",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0129",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0130",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0131",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0132",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0133",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0134",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0135",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0136",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0137",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0138",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0139",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0140",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0141",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0142",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0143",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0144",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0145",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0146",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0147",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0148",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0149",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0150",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0151",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0152",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0153",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0154",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0155",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0156",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0157",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0158",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0159",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0160",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0161",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0162",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0163",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0164",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0165",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0166",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0167",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0168",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0169",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0170",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0171",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0172",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0173",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0174",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0175",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0176",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0177",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0178",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0179",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0180",
+    "cat": "Ratschlag"
+  },
+  {
+    "id": "s0181",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0182",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0183",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0184",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0185",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0186",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0187",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0188",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0189",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0190",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0191",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0192",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0193",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0194",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0195",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0196",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0197",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0198",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0199",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0200",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0201",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0202",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0203",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0204",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0205",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0206",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0207",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0208",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0209",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0210",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0211",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0212",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0213",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0214",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0215",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0216",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0217",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0218",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0219",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0220",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0221",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0222",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0223",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0224",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0225",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0226",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0227",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0228",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0229",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0230",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0231",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0232",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0233",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0234",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0235",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0236",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0237",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0238",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0239",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0240",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0241",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0242",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0243",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0244",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0245",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0246",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0247",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0248",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0249",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0250",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0251",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0252",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0253",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0254",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0255",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0256",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0257",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0258",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0259",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0260",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0261",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0262",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0263",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0264",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0265",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0266",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0267",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0268",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0269",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0270",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0271",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0272",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0273",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0274",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0275",
+    "cat": "Ratschlag"
+  },
+  {
+    "id": "s0276",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0277",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0278",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0279",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0280",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0281",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0282",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0283",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0284",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0285",
+    "cat": "Ratschlag"
+  },
+  {
+    "id": "s0286",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0287",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0288",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0289",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0290",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0291",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0292",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0293",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0294",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0295",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0296",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0297",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0298",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0299",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0300",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0301",
+    "cat": "Ratschlag"
+  },
+  {
+    "id": "s0302",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0303",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0304",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0305",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0306",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0307",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0308",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0309",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0310",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0311",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0312",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0313",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0314",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0315",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0316",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0317",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0318",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0319",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0320",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0321",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0322",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0323",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0324",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0325",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0326",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0327",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0328",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0329",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0330",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0331",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0332",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0333",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0334",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0335",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0336",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0337",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0338",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0339",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0340",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0341",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0342",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0343",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0344",
+    "cat": "Ratschlag"
+  },
+  {
+    "id": "s0345",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0346",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0347",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0348",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0349",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0350",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0351",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0352",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0353",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0354",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0355",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0356",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0357",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0358",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0359",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0360",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0361",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0362",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0363",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0364",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0365",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0366",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0367",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0368",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0369",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0370",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0371",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0372",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0373",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0374",
+    "cat": "Übersetzen"
+  },
+  {
+    "id": "s0375",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0376",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0377",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0378",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0379",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0380",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0381",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0382",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0383",
+    "cat": "Mathe/Logik"
+  },
+  {
+    "id": "s0384",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0385",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0386",
+    "cat": "Bild-Prompts"
+  },
+  {
+    "id": "s0387",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0388",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0389",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0390",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0391",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0392",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0393",
+    "cat": "Sonstiges"
+  },
+  {
+    "id": "s0394",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0395",
+    "cat": "Rollenspiel/Story"
+  },
+  {
+    "id": "s0396",
+    "cat": "Wissen/Erklären"
+  },
+  {
+    "id": "s0397",
+    "cat": "Programmieren"
+  },
+  {
+    "id": "s0398",
+    "cat": "Schreiben/Text"
+  },
+  {
+    "id": "s0399",
+    "cat": "Schreiben/Text"
+  }
+]

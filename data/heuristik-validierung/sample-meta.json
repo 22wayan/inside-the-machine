@@ -1,0 +1,18 @@
+{
+  "seed": 11,
+  "n_pool": 19921,
+  "n_excluded_block": 157,
+  "exclusion_rate": 0.0079,
+  "n_sample": 400,
+  "alloc": {
+    "Bild-Prompts": 47,
+    "Mathe/Logik": 47,
+    "Programmieren": 48,
+    "Ratschlag": 19,
+    "Rollenspiel/Story": 48,
+    "Schreiben/Text": 48,
+    "Sonstiges": 48,
+    "Wissen/Erklären": 48,
+    "Übersetzen": 47
+  }
+}

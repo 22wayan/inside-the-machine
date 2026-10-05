@@ -1,0 +1,182 @@
+{
+  "n": 400,
+  "accuracy": 0.555,
+  "kappa": 0.4955,
+  "macroF1": 0.5279,
+  "perCat": {
+    "Bild-Prompts": {
+      "precision": 0.9787,
+      "recall": 0.9583,
+      "f1": 0.9684,
+      "support": 48
+    },
+    "Mathe/Logik": {
+      "precision": 0.234,
+      "recall": 0.5238,
+      "f1": 0.3235,
+      "support": 21
+    },
+    "Programmieren": {
+      "precision": 0.5625,
+      "recall": 0.5094,
+      "f1": 0.5347,
+      "support": 53
+    },
+    "Ratschlag": {
+      "precision": 0.2105,
+      "recall": 0.5714,
+      "f1": 0.3077,
+      "support": 7
+    },
+    "Rollenspiel/Story": {
+      "precision": 0.375,
+      "recall": 0.45,
+      "f1": 0.4091,
+      "support": 40
+    },
+    "Schreiben/Text": {
+      "precision": 0.7292,
+      "recall": 0.3933,
+      "f1": 0.5109,
+      "support": 89
+    },
+    "Sonstiges": {
+      "precision": 0.3333,
+      "recall": 0.5333,
+      "f1": 0.4103,
+      "support": 30
+    },
+    "Wissen/Erklären": {
+      "precision": 0.5833,
+      "recall": 0.4242,
+      "f1": 0.4912,
+      "support": 66
+    },
+    "Übersetzen": {
+      "precision": 0.7872,
+      "recall": 0.8043,
+      "f1": 0.7957,
+      "support": 46
+    }
+  },
+  "confusion": {
+    "Bild-Prompts": {
+      "Bild-Prompts": 46,
+      "Mathe/Logik": 1,
+      "Programmieren": 0,
+      "Ratschlag": 0,
+      "Rollenspiel/Story": 0,
+      "Schreiben/Text": 0,
+      "Sonstiges": 1,
+      "Wissen/Erklären": 0,
+      "Übersetzen": 0
+    },
+    "Mathe/Logik": {
+      "Bild-Prompts": 0,
+      "Mathe/Logik": 11,
+      "Programmieren": 0,
+      "Ratschlag": 1,
+      "Rollenspiel/Story": 1,
+      "Schreiben/Text": 0,
+      "Sonstiges": 2,
+      "Wissen/Erklären": 5,
+      "Übersetzen": 1
+    },
+    "Programmieren": {
+      "Bild-Prompts": 1,
+      "Mathe/Logik": 7,
+      "Programmieren": 27,
+      "Ratschlag": 2,
+      "Rollenspiel/Story": 4,
+      "Schreiben/Text": 2,
+      "Sonstiges": 5,
+      "Wissen/Erklären": 5,
+      "Übersetzen": 0
+    },
+    "Ratschlag": {
+      "Bild-Prompts": 0,
+      "Mathe/Logik": 0,
+      "Programmieren": 0,
+      "Ratschlag": 4,
+      "Rollenspiel/Story": 0,
+      "Schreiben/Text": 1,
+      "Sonstiges": 0,
+      "Wissen/Erklären": 2,
+      "Übersetzen": 0
+    },
+    "Rollenspiel/Story": {
+      "Bild-Prompts": 0,
+      "Mathe/Logik": 2,
+      "Programmieren": 3,
+      "Ratschlag": 0,
+      "Rollenspiel/Story": 18,
+      "Schreiben/Text": 6,
+      "Sonstiges": 7,
+      "Wissen/Erklären": 2,
+      "Übersetzen": 2
+    },
+    "Schreiben/Text": {
+      "Bild-Prompts": 0,
+      "Mathe/Logik": 10,
+      "Programmieren": 9,
+      "Ratschlag": 7,
+      "Rollenspiel/Story": 17,
+      "Schreiben/Text": 35,
+      "Sonstiges": 6,
+      "Wissen/Erklären": 3,
+      "Übersetzen": 2
+    },
+    "Sonstiges": {
+      "Bild-Prompts": 0,
+      "Mathe/Logik": 5,
+      "Programmieren": 2,
+      "Ratschlag": 2,
+      "Rollenspiel/Story": 1,
+      "Schreiben/Text": 1,
+      "Sonstiges": 16,
+      "Wissen/Erklären": 2,
+      "Übersetzen": 1
+    },
+    "Wissen/Erklären": {
+      "Bild-Prompts": 0,
+      "Mathe/Logik": 10,
+      "Programmieren": 5,
+      "Ratschlag": 3,
+      "Rollenspiel/Story": 3,
+      "Schreiben/Text": 3,
+      "Sonstiges": 10,
+      "Wissen/Erklären": 28,
+      "Übersetzen": 4
+    },
+    "Übersetzen": {
+      "Bild-Prompts": 0,
+      "Mathe/Logik": 1,
+      "Programmieren": 2,
+      "Ratschlag": 0,
+      "Rollenspiel/Story": 4,
+      "Schreiben/Text": 0,
+      "Sonstiges": 1,
+      "Wissen/Erklären": 1,
+      "Übersetzen": 37
+    }
+  },
+  "seed": 11,
+  "sampleMeta": {
+    "seed": 11,
+    "n_pool": 19921,
+    "n_excluded_block": 157,
+    "exclusion_rate": 0.0079,
+    "n_sample": 400,
+    "alloc": {
+      "Bild-Prompts": 47,
+      "Mathe/Logik": 47,
+      "Programmieren": 48,
+      "Ratschlag": 19,
+      "Rollenspiel/Story": 48,
+      "Schreiben/Text": 48,
+      "Sonstiges": 48,
+      "Wissen/Erklären": 48,
+      "Übersetzen": 47
+    }
+  }
+}
