@@ -774,7 +774,8 @@ body::after {
   .useov-row-btn { min-height: 40px; }
   .ledger-navbtn, .ledger-reveal { min-height: 40px; padding-inline: 0.9rem; }
   .map-legend-btn { min-height: 40px; padding-right: var(--s-2); }
-  .map-label { min-height: 40px; }
+  .map-label { min-height: 40px; min-width: 40px; }
+  .map-legend { row-gap: 0 !important; }
   .tap-min { min-height: 44px; min-width: 44px; }
 }
 

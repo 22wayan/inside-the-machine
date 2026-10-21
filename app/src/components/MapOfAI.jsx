@@ -445,7 +445,7 @@ export default function MapOfAI() {
     </div>
   )
   const legendEl = (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--s-2) var(--s-5)', marginTop: 'var(--s-4)' }}>
+    <div className="map-legend" style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--s-2) var(--s-5)', marginTop: 'var(--s-4)' }}>
       {centroids.map((c) => {
         const ci = d.cats.findIndex((x) => x.cat === c.cat)
         const active = hoverCat ?? pinCat
