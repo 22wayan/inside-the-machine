@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion } from 'motion/react'
 import { PAL, CAT, CAT_OTHER, SCENE_BG } from '../theme'
 import { Reveal, SourceNote } from './Motion'
-import { useCompact } from './useViewport'
+import { useCompact, useMediaQuery } from './useViewport'
 
 // Akt 2, "Map of AI Research". KI-Abstracts (arXiv) auf 2D projiziert (TF-IDF + LSA/SVD), als
 // Canvas-Punktwolke gefaerbt nach Forschungsfeld.
@@ -75,12 +75,12 @@ const EPOCHS = [
   { year: 2022, title: 'Die generative Ära', text: 'Der ChatGPT-Moment: generative Modelle dominieren, die Karte wächst in allen Feldern explosionsartig.' },
 ]
 
-function Epoch({ progress, p0, title, text, compact }) {
+function Epoch({ progress, p0, title, text, stacked }) {
   const opacity = useTransform(progress, [p0 - 0.045, p0 + 0.015, p0 + 0.16, p0 + 0.21], [0, 1, 1, 0])
   // Telefon: die Karte steht im Slot unter der Karte (.map-slot), statt die Feld-Labels zu verdecken.
-  const place = compact ? {} : { position: 'absolute', left: 'var(--s-4)', top: 'var(--s-4)', maxWidth: 'min(360px, 64%)', zIndex: 4, boxShadow: '0 14px 36px rgba(0,0,0,0.55)' }
+  const place = stacked ? {} : { position: 'absolute', left: 'var(--s-4)', top: 'var(--s-4)', maxWidth: 'min(360px, 64%)', zIndex: 4, boxShadow: '0 14px 36px rgba(0,0,0,0.55)' }
   return (
-    <motion.div className="map-epoch" style={{ opacity, pointerEvents: 'none', background: 'var(--panel-2)', border: `1px solid ${PAL.machineLine}`, borderRadius: 8, padding: compact ? 'var(--s-3) var(--s-4)' : 'var(--s-4) var(--s-5)', ...place }}>
+    <motion.div className="map-epoch" style={{ opacity, pointerEvents: 'none', background: 'var(--panel-2)', border: `1px solid ${PAL.machineLine}`, borderRadius: 8, padding: stacked ? 'var(--s-3) var(--s-4)' : 'var(--s-4) var(--s-5)', ...place }}>
       <div className="t-display-s" style={{ color: PAL.text, marginBottom: 'var(--s-2)' }}>{title}</div>
       <div className="t-body" style={{ color: PAL.muted, lineHeight: 1.45 }}>{text}</div>
     </motion.div>
@@ -91,6 +91,9 @@ export default function MapOfAI() {
   const [d, setD] = useState(null)
   const reduce = useReducedMotion()
   const compact = useCompact()
+  // Unter 1024 px (Telefon und Tablet hochkant) stehen Jahr, Epochen- und Feldkarte neben statt
+  // auf der Karte: bei 706 px Kartenbreite deckte die 400 px breite Feldkarte die Labels ab.
+  const stacked = useMediaQuery('(max-width: 1023px)')
   const canvasRef = useRef(null)
   const containerRef = useRef(null)
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] })
@@ -356,10 +359,10 @@ export default function MapOfAI() {
 
   // Telefon: das Jahr steht als Zeile UEBER der Karte; als Overlay deckte es dort zwei Feld-Labels ab.
   const yearBadge = (
-    <div style={compact
+    <div style={stacked
       ? { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 'var(--s-3)', marginBottom: 'var(--s-2)', pointerEvents: 'none' }
       : { position: 'absolute', right: 'var(--s-4)', top: 'var(--s-4)', textAlign: 'right', pointerEvents: 'none', zIndex: 7 }}>
-      <div className="mono" aria-live="polite" style={{ fontSize: compact ? '2rem' : 'clamp(2rem, 4vw, 3.4rem)', fontWeight: 500, color: PAL.text, lineHeight: 1 }}>{displayYear}</div>
+      <div className="mono" aria-live="polite" style={{ fontSize: stacked ? '2rem' : 'clamp(2rem, 4vw, 3.4rem)', fontWeight: 500, color: PAL.text, lineHeight: 1 }}>{displayYear}</div>
       <div className="t-data" style={{ color: PAL.muted, marginTop: 'var(--s-1)' }}>{shownCount.toLocaleString('de-DE')} Paper</div>
       {/* Ehrlichkeits-Badge: altes JSON (ohne sampleK) = API-Stichprobe ab 2022; neues JSON = ggf. proportionstreue 1:k-Darstellung */}
       {d && d.sampleK === undefined && displayYear > 2021 && <div className="t-data" style={{ color: PAL.muted, opacity: 0.7 }}>ab 2022: Stichprobe</div>}
@@ -383,11 +386,11 @@ export default function MapOfAI() {
   // Markierungen (Nutzer-Befund: linke Felder wurden vom links fixierten Panel ueberdeckt).
   const focusCentroid = focusCat !== null && d.cats[focusCat] ? centroids.find((c) => c.cat === d.cats[focusCat].cat) : null
   const panelRight = focusCentroid ? projX(focusCentroid.x) / W < 0.45 : false
-  const infoPlace = compact
+  const infoPlace = stacked
     ? {}
     : { position: 'absolute', ...(panelRight ? { right: 'var(--s-4)' } : { left: 'var(--s-4)' }), top: 'var(--s-4)', width: 'min(400px, calc(100% - 2 * var(--s-4)))', maxHeight: 'calc(100% - var(--s-8))', overflowY: 'auto', zIndex: 6, boxShadow: '0 14px 36px rgba(0,0,0,0.55)' }
   const infoCard = focusCat !== null && d.cats[focusCat] ? (
-    <div className="map-info" style={{ ...infoPlace, pointerEvents: pinCat !== null ? 'auto' : 'none', background: 'var(--panel-2)', border: `1px solid ${PAL.machineLine}`, borderRadius: 8, padding: compact ? 'var(--s-3) var(--s-4)' : 'var(--s-4) var(--s-5)' }}>
+    <div className="map-info" style={{ ...infoPlace, pointerEvents: pinCat !== null ? 'auto' : 'none', background: 'var(--panel-2)', border: `1px solid ${PAL.machineLine}`, borderRadius: 8, padding: stacked ? 'var(--s-3) var(--s-4)' : 'var(--s-4) var(--s-5)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--s-2)' }}>
         <div className="t-display-s" style={{ color: catColor(d.cats, focusCat), marginBottom: 'var(--s-2)' }}>{LABELS[d.cats[focusCat].cat] || d.cats[focusCat].cat}</div>
         {pinCat !== null && (
@@ -534,17 +537,17 @@ export default function MapOfAI() {
   )
   const vizStack = (epochsNode, { withLegend = true } = {}) => (
     <div className="viz" style={{ gridColumn: '1 / -1' }}>
-      {compact && yearBadge}
+      {stacked && yearBadge}
       <div style={{ position: 'relative', width: stackW, aspectRatio: `${W} / ${H}`, margin: '0 auto' }}>
         <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} role="img" aria-label={canvasAria} />
         {fieldLabels}
         {/* Jahres-Badge weicht, wenn das Panel rechts andockt (sonst Ueberdeckung oben rechts) */}
-        {!compact && !(focusCat !== null && panelRight) && yearBadge}
-        {!compact && (focusCat !== null ? infoCard : epochsNode)}
+        {!stacked && !(focusCat !== null && panelRight) && yearBadge}
+        {!stacked && (focusCat !== null ? infoCard : epochsNode)}
       </div>
       {yearStrip}
       {/* Telefon: Epochen- und Feldkarte im Slot unter der Karte statt darueber */}
-      {compact && (focusCat !== null || epochsNode) && <div className="map-slot">{focusCat !== null ? infoCard : epochsNode}</div>}
+      {stacked && (focusCat !== null || epochsNode) && <div className="map-slot">{focusCat !== null ? infoCard : epochsNode}</div>}
       {withLegend && legendEl}
     </div>
   )
@@ -580,7 +583,7 @@ export default function MapOfAI() {
           <div className="layout-container" style={{ width: '100%' }}>
             <div className="editorial-grid">
               {!compact && headerCompact}
-              {vizStack(d && EPOCHS.map((e) => <Epoch key={e.year} progress={scrollYProgress} p0={(e.year - Y0) / (Y1 - Y0)} title={e.title} text={e.text} compact={compact} />), { withLegend: !compact })}
+              {vizStack(d && EPOCHS.map((e) => <Epoch key={e.year} progress={scrollYProgress} p0={(e.year - Y0) / (Y1 - Y0)} title={e.title} text={e.text} stacked={stacked} />), { withLegend: !compact })}
             </div>
           </div>
         </div>

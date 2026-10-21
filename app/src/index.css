@@ -752,14 +752,18 @@ body::after {
 .map-slot > .map-info { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; }
 .map-legend-btn {
   display: inline-flex; align-items: center; gap: var(--s-1);
-  background: transparent; border: 0; padding: 0; color: var(--muted); cursor: pointer; font: inherit;
+  background: transparent; border: 0; padding: 0; color: var(--muted); cursor: pointer;
 }
 
-@media (max-width: 719px) {
-  /* Lange Erklaerabsaetze in Mono: 12,5 px sind auf dem Telefon zu klein zum Lesen. */
+/* Telefon und Tablet hochkant */
+@media (max-width: 1023px) {
+  /* Lange Erklaerabsaetze in Mono: 12,5 px sind auf Touch-Geraeten zu klein zum Lesen. */
   p.t-data { font-size: 0.875rem; }
   .useov-tag { font-size: 0.875rem; max-width: none; }
   .useov-switch-hint { font-size: 0.8rem; }
+  .map-chip { font-size: 0.7rem; }
+}
+@media (max-width: 719px) {
   .map-label { font-size: 0.72rem; padding: 4px 6px; }
 }
 
@@ -770,6 +774,7 @@ body::after {
   .useov-row-btn { min-height: 40px; }
   .ledger-navbtn, .ledger-reveal { min-height: 40px; padding-inline: 0.9rem; }
   .map-legend-btn { min-height: 40px; padding-right: var(--s-2); }
+  .map-label { min-height: 40px; }
   .tap-min { min-height: 44px; min-width: 44px; }
 }
 
