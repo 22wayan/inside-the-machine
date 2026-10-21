@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion } from 'motion/react'
 import { PAL, CAT, CAT_OTHER, SCENE_BG } from '../theme'
 import { Reveal, SourceNote } from './Motion'
+import { useCompact } from './useViewport'
 
 // Akt 2, "Map of AI Research". KI-Abstracts (arXiv) auf 2D projiziert (TF-IDF + LSA/SVD), als
 // Canvas-Punktwolke gefaerbt nach Forschungsfeld.
@@ -27,6 +28,25 @@ const LABELS = {
   'cs.RO': 'Robotik',
   'cs.IR': 'Informationssuche',
 }
+
+// Kurzformen fuer das Telefon: acht ausgeschriebene Namen ueberlagern sich auf 350 px Kartenbreite.
+// Die Legende darunter nennt weiter die vollen Namen.
+const SHORT_LABELS = {
+  'cs.LG': 'ML',
+  'cs.CV': 'Vision',
+  'cs.CL': 'Sprache',
+  'cs.AI': 'Symb. KI',
+  'cs.NE': 'Neuro-Evo.',
+  'stat.ML': 'Statistik',
+  'cs.RO': 'Robotik',
+  'cs.IR': 'Suche',
+}
+
+// Hover nur fuer echte Maeuse. Auf dem Touchscreen feuert ein Tipp zusaetzlich mouseenter und
+// focus; der Hover-Zustand blieb dann haengen und hielt die Feldkarte offen, obwohl der zweite
+// Tipp den Pin schon geloest hatte.
+const isMouse = (e) => !e.pointerType || e.pointerType === 'mouse'
+const isKeyboardFocus = (e) => { try { return e.target.matches(':focus-visible') } catch { return true } }
 
 const catColor = (cats, i) => (cats[i] && cats[i].cat === 'andere' ? CAT_OTHER : CAT[i])
 
@@ -55,10 +75,12 @@ const EPOCHS = [
   { year: 2022, title: 'Die generative Ära', text: 'Der ChatGPT-Moment: generative Modelle dominieren, die Karte wächst in allen Feldern explosionsartig.' },
 ]
 
-function Epoch({ progress, p0, title, text }) {
+function Epoch({ progress, p0, title, text, compact }) {
   const opacity = useTransform(progress, [p0 - 0.045, p0 + 0.015, p0 + 0.16, p0 + 0.21], [0, 1, 1, 0])
+  // Telefon: die Karte steht im Slot unter der Karte (.map-slot), statt die Feld-Labels zu verdecken.
+  const place = compact ? {} : { position: 'absolute', left: 'var(--s-4)', top: 'var(--s-4)', maxWidth: 'min(360px, 64%)', zIndex: 4, boxShadow: '0 14px 36px rgba(0,0,0,0.55)' }
   return (
-    <motion.div style={{ opacity, position: 'absolute', left: 'var(--s-4)', top: 'var(--s-4)', maxWidth: 'min(360px, 64%)', pointerEvents: 'none', zIndex: 4, background: 'var(--panel-2)', border: `1px solid ${PAL.machineLine}`, borderRadius: 8, padding: 'var(--s-4) var(--s-5)', boxShadow: '0 14px 36px rgba(0,0,0,0.55)' }}>
+    <motion.div className="map-epoch" style={{ opacity, pointerEvents: 'none', background: 'var(--panel-2)', border: `1px solid ${PAL.machineLine}`, borderRadius: 8, padding: compact ? 'var(--s-3) var(--s-4)' : 'var(--s-4) var(--s-5)', ...place }}>
       <div className="t-display-s" style={{ color: PAL.text, marginBottom: 'var(--s-2)' }}>{title}</div>
       <div className="t-body" style={{ color: PAL.muted, lineHeight: 1.45 }}>{text}</div>
     </motion.div>
@@ -68,6 +90,7 @@ function Epoch({ progress, p0, title, text }) {
 export default function MapOfAI() {
   const [d, setD] = useState(null)
   const reduce = useReducedMotion()
+  const compact = useCompact()
   const canvasRef = useRef(null)
   const containerRef = useRef(null)
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] })
@@ -321,19 +344,22 @@ export default function MapOfAI() {
     const active = hoverCat ?? pinCat
     const color = active === ci ? PAL.machine : (active !== null ? PAL.muted : undefined)
     return (
-      <button key={c.cat} className="map-label" onMouseEnter={() => setHover(ci)} onMouseLeave={() => setHover(null)}
-        onFocus={() => setHover(ci)} onBlur={() => setHover(null)} onClick={() => togglePin(ci)}
+      <button key={c.cat} className="map-label" onPointerEnter={(e) => isMouse(e) && setHover(ci)} onPointerLeave={(e) => isMouse(e) && setHover(null)}
+        onFocus={(e) => isKeyboardFocus(e) && setHover(ci)} onBlur={() => setHover(null)} onClick={() => togglePin(ci)}
         aria-label={`Feld fixieren und Top-Paper zeigen: ${LABELS[c.cat] || c.cat}`} aria-pressed={pinCat === ci}
         style={{ left: `${left}%`, top: `${top}%`, color }}>
-        {LABELS[c.cat] || c.cat}
-        <span className="map-chip">{fmtCount(countUpTo(ci, displayYear))}</span>
+        {compact ? (SHORT_LABELS[c.cat] || LABELS[c.cat] || c.cat) : (LABELS[c.cat] || c.cat)}
+        {!compact && <span className="map-chip">{fmtCount(countUpTo(ci, displayYear))}</span>}
       </button>
     )
   })
 
+  // Telefon: das Jahr steht als Zeile UEBER der Karte; als Overlay deckte es dort zwei Feld-Labels ab.
   const yearBadge = (
-    <div style={{ position: 'absolute', right: 'var(--s-4)', top: 'var(--s-4)', textAlign: 'right', pointerEvents: 'none', zIndex: 7 }}>
-      <div className="mono" aria-live="polite" style={{ fontSize: 'clamp(2rem, 4vw, 3.4rem)', fontWeight: 500, color: PAL.text, lineHeight: 1 }}>{displayYear}</div>
+    <div style={compact
+      ? { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 'var(--s-3)', marginBottom: 'var(--s-2)', pointerEvents: 'none' }
+      : { position: 'absolute', right: 'var(--s-4)', top: 'var(--s-4)', textAlign: 'right', pointerEvents: 'none', zIndex: 7 }}>
+      <div className="mono" aria-live="polite" style={{ fontSize: compact ? '2rem' : 'clamp(2rem, 4vw, 3.4rem)', fontWeight: 500, color: PAL.text, lineHeight: 1 }}>{displayYear}</div>
       <div className="t-data" style={{ color: PAL.muted, marginTop: 'var(--s-1)' }}>{shownCount.toLocaleString('de-DE')} Paper</div>
       {/* Ehrlichkeits-Badge: altes JSON (ohne sampleK) = API-Stichprobe ab 2022; neues JSON = ggf. proportionstreue 1:k-Darstellung */}
       {d && d.sampleK === undefined && displayYear > 2021 && <div className="t-data" style={{ color: PAL.muted, opacity: 0.7 }}>ab 2022: Stichprobe</div>}
@@ -357,12 +383,15 @@ export default function MapOfAI() {
   // Markierungen (Nutzer-Befund: linke Felder wurden vom links fixierten Panel ueberdeckt).
   const focusCentroid = focusCat !== null && d.cats[focusCat] ? centroids.find((c) => c.cat === d.cats[focusCat].cat) : null
   const panelRight = focusCentroid ? projX(focusCentroid.x) / W < 0.45 : false
+  const infoPlace = compact
+    ? {}
+    : { position: 'absolute', ...(panelRight ? { right: 'var(--s-4)' } : { left: 'var(--s-4)' }), top: 'var(--s-4)', width: 'min(400px, calc(100% - 2 * var(--s-4)))', maxHeight: 'calc(100% - var(--s-8))', overflowY: 'auto', zIndex: 6, boxShadow: '0 14px 36px rgba(0,0,0,0.55)' }
   const infoCard = focusCat !== null && d.cats[focusCat] ? (
-    <div style={{ position: 'absolute', ...(panelRight ? { right: 'var(--s-4)' } : { left: 'var(--s-4)' }), top: 'var(--s-4)', width: 'min(400px, calc(100% - 2 * var(--s-4)))', maxHeight: 'calc(100% - var(--s-8))', overflowY: 'auto', zIndex: 6, pointerEvents: pinCat !== null ? 'auto' : 'none', background: 'var(--panel-2)', border: `1px solid ${PAL.machineLine}`, borderRadius: 8, padding: 'var(--s-4) var(--s-5)', boxShadow: '0 14px 36px rgba(0,0,0,0.55)' }}>
+    <div className="map-info" style={{ ...infoPlace, pointerEvents: pinCat !== null ? 'auto' : 'none', background: 'var(--panel-2)', border: `1px solid ${PAL.machineLine}`, borderRadius: 8, padding: compact ? 'var(--s-3) var(--s-4)' : 'var(--s-4) var(--s-5)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--s-2)' }}>
         <div className="t-display-s" style={{ color: catColor(d.cats, focusCat), marginBottom: 'var(--s-2)' }}>{LABELS[d.cats[focusCat].cat] || d.cats[focusCat].cat}</div>
         {pinCat !== null && (
-          <button onClick={() => setPin(null)} aria-label="Feld-Fokus schließen" className="mono"
+          <button onClick={() => setPin(null)} aria-label="Feld-Fokus schließen" className="mono tap-min"
             style={{ background: 'transparent', border: 'none', color: PAL.muted, cursor: 'pointer', fontSize: '1rem', lineHeight: 1 }}>✕</button>
         )}
       </div>
@@ -374,7 +403,7 @@ export default function MapOfAI() {
         <>
           <div role="tablist" aria-label="Paper-Zeitraum" style={{ display: 'flex', gap: 6, marginTop: 'var(--s-4)' }}>
             {[['year', `Jahr ${displayYear}`], ['all', 'Allzeit']].map(([id, label]) => (
-              <button key={id} role="tab" aria-selected={paperView === id} onClick={() => setPaperView(id)} className="mono"
+              <button key={id} role="tab" aria-selected={paperView === id} onClick={() => setPaperView(id)} className="mono map-tab"
                 style={{ cursor: 'pointer', border: `1px solid ${paperView === id ? PAL.machine : PAL.hairline}`, borderRadius: 999, background: 'transparent', color: paperView === id ? PAL.text : PAL.muted, padding: '3px 9px', fontSize: '0.67rem' }}>{label}</button>
             ))}
           </div>
@@ -397,7 +426,7 @@ export default function MapOfAI() {
           </p>
         </>
       ) : (
-        pinCat === null && <p className="t-data" style={{ color: PAL.machine, marginTop: 'var(--s-3)' }}>Klick fixiert das Feld{(d.top || []).length > 0 ? ' und zeigt die meistzitierten Paper' : ''}.</p>
+        pinCat === null && <p className="t-data" style={{ color: PAL.machine, marginTop: 'var(--s-3)' }}><span className="only-hover">Klick</span><span className="only-touch">Tippen</span> fixiert das Feld{(d.top || []).length > 0 ? ' und zeigt die meistzitierten Paper' : ''}.</p>
       )}
     </div>
   ) : null
@@ -419,13 +448,18 @@ export default function MapOfAI() {
         const active = hoverCat ?? pinCat
         const dim = active !== null && active !== ci
         return (
-          <span key={c.cat} className="t-data" onMouseEnter={() => setHover(ci)} onMouseLeave={() => setHover(null)} onClick={() => togglePin(ci)}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--s-1)', color: PAL.muted, cursor: 'pointer', opacity: dim ? 0.4 : 1, transition: 'opacity 0.15s' }}>
+          // Echter Button statt span mit onClick: per Tastatur erreichbar und mit Tap-Flaeche.
+          <button key={c.cat} type="button" className="t-data map-legend-btn" aria-pressed={pinCat === ci}
+            onPointerEnter={(e) => isMouse(e) && setHover(ci)} onPointerLeave={(e) => isMouse(e) && setHover(null)} onClick={() => togglePin(ci)}
+            style={{ opacity: dim ? 0.4 : 1, transition: 'opacity 0.15s', color: pinCat === ci ? PAL.text : PAL.muted }}>
             <span style={{ width: 10, height: 10, borderRadius: 999, background: catColor(d.cats, ci), display: 'inline-block' }} /> {LABELS[c.cat] || c.cat}
-          </span>
+          </button>
         )
       })}
-      <span className="t-data" style={{ color: PAL.muted, opacity: 0.7, alignSelf: 'center' }}>· überfahren für Details, Klick für die Top-Paper</span>
+      <span className="t-data" style={{ color: PAL.muted, opacity: 0.7, alignSelf: 'center' }}>
+        <span className="only-hover">· überfahren für Details, Klick für die Top-Paper</span>
+        <span className="only-touch">· Feld antippen für Details und Top-Paper</span>
+      </span>
     </div>
   )
   const srTable = (
@@ -442,7 +476,7 @@ export default function MapOfAI() {
         <p className="kicker" style={{ marginBottom: 'var(--s-2)' }}>Akt 2 · Das Wissen</p>
         <p className="t-data" style={{ color: PAL.muted, marginTop: 'var(--s-2)' }}>Daten: Text-Korpus, abgeleitet 2D · 8 Felder, zeitlich · Task: Topologie &amp; Trend. Anordnung nach arXiv-Kategorien (cs.AI, cs.LG).</p>
         <p className="t-body" style={{ color: PAL.muted, marginTop: 'var(--s-3)', marginBottom: 'var(--s-3)' }}>
-          <span style={{ color: PAL.machine }}>Scrolle</span> durch die Jahre und sieh die Karte von 2007 bis 2026 wachsen; fahr über ein Feld für Details.
+          <span style={{ color: PAL.machine }}>Scrolle</span> durch die Jahre und sieh die Karte von 2007 bis 2026 wachsen; <span className="only-hover">fahr über ein Feld für Details.</span><span className="only-touch">tippe auf ein Feld für Details.</span>
         </p>
       </Reveal>
     </div>
@@ -452,7 +486,7 @@ export default function MapOfAI() {
       <Reveal>
         <p className="kicker" style={{ marginBottom: 'var(--s-2)' }}>Akt 2 · Das Wissen</p>
         <p className="t-data" style={{ color: PAL.muted, marginTop: 'var(--s-2)' }}>
-          Anordnung nach arXiv-Kategorien (cs.AI, cs.LG). <span style={{ color: PAL.machine }}>Scrolle</span> durch die Jahre, fahr über ein Feld für Details, Klick fixiert es.
+          Anordnung nach arXiv-Kategorien (cs.AI, cs.LG). <span style={{ color: PAL.machine }}>Scrolle</span> durch die Jahre, <span className="only-hover">fahr über ein Feld für Details, Klick fixiert es.</span><span className="only-touch">tippe auf ein Feld für Details.</span>
         </p>
       </Reveal>
     </div>
@@ -477,7 +511,7 @@ export default function MapOfAI() {
 
   // Canvas-Box mit allen Overlays (Labels/Badge/Karte). Wrapper = exakt die Canvas-Flaeche, damit die
   // HTML-Label-Positionen (Prozent) mit den Cluster-Zentren auf dem Canvas uebereinstimmen.
-  const stackW = `min(100%, calc(min(${CANVAS_VH}vh, 100vh - ${CANVAS_RESERVED}px) * ${W} / ${H}))`
+  const stackW = compact ? '100%' : `min(100%, calc(min(${CANVAS_VH}vh, 100vh - ${CANVAS_RESERVED}px) * ${W} / ${H}))`
   const yearStrip = yearCounts.length > 0 && (
     <div aria-hidden="true" style={{ width: stackW, margin: 'var(--s-2) auto 0', pointerEvents: 'none' }}>
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: YEARSTRIP_H }}>
@@ -498,17 +532,20 @@ export default function MapOfAI() {
       </div>
     </div>
   )
-  const vizStack = (epochsNode) => (
+  const vizStack = (epochsNode, { withLegend = true } = {}) => (
     <div className="viz" style={{ gridColumn: '1 / -1' }}>
+      {compact && yearBadge}
       <div style={{ position: 'relative', width: stackW, aspectRatio: `${W} / ${H}`, margin: '0 auto' }}>
         <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} role="img" aria-label={canvasAria} />
         {fieldLabels}
         {/* Jahres-Badge weicht, wenn das Panel rechts andockt (sonst Ueberdeckung oben rechts) */}
-        {!(focusCat !== null && panelRight) && yearBadge}
-        {focusCat !== null ? infoCard : epochsNode}
+        {!compact && !(focusCat !== null && panelRight) && yearBadge}
+        {!compact && (focusCat !== null ? infoCard : epochsNode)}
       </div>
       {yearStrip}
-      {legendEl}
+      {/* Telefon: Epochen- und Feldkarte im Slot unter der Karte statt darueber */}
+      {compact && (focusCat !== null || epochsNode) && <div className="map-slot">{focusCat !== null ? infoCard : epochsNode}</div>}
+      {withLegend && legendEl}
     </div>
   )
 
@@ -529,18 +566,30 @@ export default function MapOfAI() {
   }
 
   // ---- Scrollytelling-Modus ----
+  // Telefon: Kopfzeile vor, Legende nach der Buehne. Beides zusammen mit Karte, Jahresleiste und
+  // Epochenkarte war hoeher als 100svh, die Legende lag unter der Bildschirmkante.
   return (
     <section id="map" aria-label="Die Landkarte der KI-Forschung" style={{ background: SCENE_BG }}>
+      {compact && (
+        <div className="layout-container" style={{ paddingTop: 'var(--s-10)' }}>
+          <div className="editorial-grid">{headerCompact}</div>
+        </div>
+      )}
       <div ref={containerRef} style={{ position: 'relative', height: `${CONTAINER_VH}vh` }}>
-        <div style={{ position: 'sticky', top: 0, height: '100vh', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
+        <div className="sticky-stage">
           <div className="layout-container" style={{ width: '100%' }}>
             <div className="editorial-grid">
-              {headerCompact}
-              {vizStack(d && EPOCHS.map((e) => <Epoch key={e.year} progress={scrollYProgress} p0={(e.year - Y0) / (Y1 - Y0)} title={e.title} text={e.text} />))}
+              {!compact && headerCompact}
+              {vizStack(d && EPOCHS.map((e) => <Epoch key={e.year} progress={scrollYProgress} p0={(e.year - Y0) / (Y1 - Y0)} title={e.title} text={e.text} compact={compact} />), { withLegend: !compact })}
             </div>
           </div>
         </div>
       </div>
+      {compact && d && (
+        <div className="layout-container">
+          <div className="editorial-grid"><div style={{ gridColumn: '1 / -1' }}>{legendEl}</div></div>
+        </div>
+      )}
       {afterMap}
     </section>
   )
