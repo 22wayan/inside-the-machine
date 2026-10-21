@@ -144,7 +144,7 @@ async function checkInteractions(page) {
   const res = { act1Tooltip: null, act2Card: null, act2CardOverlapsLabel: null, act3ExplorerAspect: null }
   // Akt 1: ans Ende der Buehne scrollen (alle Punkte gezuendet), auf einen Punkt tippen.
   const c = await page.locator('#compute').evaluate((el) => { const r = el.getBoundingClientRect(); return { top: r.top + scrollY, h: r.height } })
-  await page.evaluate((y) => scrollTo(0, y), Math.round(c.top + c.h * 0.55))
+  await page.evaluate((y) => scrollTo({ top: y, behavior: "instant" }), Math.round(c.top + c.h * 0.55))
   await page.waitForTimeout(500)
   const dot = await page.evaluate(() => {
     const vh = innerHeight
@@ -154,6 +154,7 @@ async function checkInteractions(page) {
     const r = el.getBoundingClientRect()
     return { x: r.left + r.width / 2, y: r.top + r.height / 2 }
   })
+  if (process.env.AUDIT_DEBUG) console.log('act1 dot', JSON.stringify(dot), JSON.stringify(c))
   if (dot) {
     await page.touchscreen.tap(dot.x, dot.y)
     await page.waitForTimeout(300)
@@ -161,7 +162,7 @@ async function checkInteractions(page) {
   }
   // Akt 2: Feld-Label antippen, Feldkarte muss erscheinen und darf kein Label verdecken.
   const m = await page.locator('#map').evaluate((el) => { const r = el.getBoundingClientRect(); return { top: r.top + scrollY, h: r.height } })
-  await page.evaluate((y) => scrollTo(0, y), Math.round(m.top + m.h * 0.45))
+  await page.evaluate((y) => scrollTo({ top: y, behavior: "instant" }), Math.round(m.top + m.h * 0.45))
   await page.waitForTimeout(500)
   const label = page.locator('#map .map-label').first()
   if (await label.count()) {
@@ -221,7 +222,7 @@ for (const [w, h] of SIZES) {
     const agg = { height: Math.round(box.height), frames, overflowMax: 0, smallText: new Set(), tinySvgText: new Set(), smallTaps: new Set(), overlaps: new Set(), clipped: new Set() }
     for (let f = 0; f < frames; f++) {
       const y = Math.round(box.top + f * h)
-      await page.evaluate((yy) => window.scrollTo(0, yy), y)
+      await page.evaluate((yy) => window.scrollTo({ top: yy, behavior: "instant" }), y)
       await page.waitForTimeout(450)
       const r = await page.evaluate(inspectFrame, { MIN_BODY_PX, MIN_LABEL_PX, MIN_TAP_PX })
       agg.overflowMax = Math.max(agg.overflowMax, r.overflow)
