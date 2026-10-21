@@ -5,6 +5,7 @@ import { select } from 'd3-selection'
 import { quadtree } from 'd3-quadtree'
 import { PAL, REL_COLOR, STAR, SCENE_BG } from '../theme'
 import { Reveal, SourceNote } from './Motion'
+import { useMediaQuery } from './useViewport'
 
 // Fokussierbare Elemente der Fokus-Falle des Explorers (identisch zu ledger/ReadingDesk.jsx).
 const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -432,8 +433,14 @@ export default function FamilyTree() {
   const draw = useCallback(() => {
     const cv = canvasRef.current
     if (!cv || !data || !geom) return
-    const dpr = Math.min(2, window.devicePixelRatio || 1)
-    if (cv.width !== W * dpr) { cv.width = W * dpr; cv.height = H * dpr }
+    // Backingstore: auf Desktop wie bisher W x dpr. Unter UI_SCALE_BELOW so gross wie die Anzeige
+    // (CSS-Breite x Geraete-dpr): ein 350 px breiter Canvas fuellte sonst 2640 x 1640 Pixel je
+    // Frame, rund sechsmal mehr als das Telefon ueberhaupt darstellt.
+    const devDpr = window.devicePixelRatio || 1
+    const ui = uiScaleRef.current
+    const dpr = ui > 1 ? Math.min(3, devDpr) / ui : Math.min(2, devDpr)
+    const bw = Math.round(W * dpr)
+    if (cv.width !== bw) { cv.width = bw; cv.height = Math.round(H * dpr) }
     const ctx = cv.getContext('2d')
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, W, H)
@@ -562,7 +569,6 @@ export default function FamilyTree() {
     // 5. Smart-Labels: NUR Hub-Sonnen (Diversity-gefiltert), mit dunkler Pill. KEINE statischen Kinder-Labels mehr.
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'
     const nLab = (LOD_HUBS.find(([lim]) => zr < lim) || [0, 130])[1]
-    const ui = uiScaleRef.current
     const pillH = PILL_H * ui
     const pillPadX = PILL_PADX * ui
     ctx.font = `600 ${13 * ui}px "IBM Plex Mono", monospace`
@@ -629,7 +635,10 @@ export default function FamilyTree() {
 
   // Ambient-Loop: kontinuierlicher rAF mit delta-akkumulierten Phasen (kein Sprung nach Pause/Tab-Wechsel).
   // Rotation pausiert beim Hover (fokussiertes System bleibt unter dem Cursor). Aus bei reduced-motion / off-screen.
-  const animate = !reduce && (onScreen || open)
+  // Die Ambient-Rotation ist Dekoration. Auf Touch-Geraeten und schmalen Viewports bleibt sie aus:
+  // gemessen 4 fps bei 390 px und 4-facher CPU-Drosselung, der Frame-Loop blockierte das Scrollen.
+  const lowPower = useMediaQuery('(max-width: 1023px), (pointer: coarse)')
+  const animate = !reduce && !lowPower && (onScreen || open)
   useEffect(() => {
     if (!animate) {
       animatingRef.current = false
