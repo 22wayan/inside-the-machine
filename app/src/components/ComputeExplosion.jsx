@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion 
 import { scaleLinear, scaleLog } from 'd3-scale'
 import { PAL, heat, SCENE_BG } from '../theme'
 import { Reveal, SourceNote } from './Motion'
+import { useCompact, useElementWidth } from './useViewport'
 
 // Akt 1, "Die Explosion der Rechenleistung". Bespoke D3/SVG: x = Jahr, y = Training-Compute (FLOP,
 // log), jedes Modell ein Punkt (Farbe = Compute-Magnitude). Eine gluehende Frontier-Linie zeigt den
@@ -12,12 +13,26 @@ import { Reveal, SourceNote } from './Motion'
 // Framer-Motion-Values haengen direkt an SVG-Attributen (kein React-Rerender pro Scroll-Frame).
 // prefers-reduced-motion -> statische Vollansicht (kein erzwungenes Scrollen, alles sofort sichtbar).
 
-const W = 1320
-const H = 548
-const PAD_L = 70
-const PAD_R = 44
-const PAD_T = 118
-const PAD_B = 54
+// Geometrie. Desktop (Spalte >= DESKTOP_MIN) behaelt exakt die frueheren Konstanten 1320 x 548
+// mit viewBox-Skalierung. Darunter rechnet die Grafik im Massstab 1:1 zur gemessenen Breite:
+// sonst schrumpften Achsen und Story-Boxen mit dem viewBox auf 3 bis 4 px (gemessen bei 390 px).
+const DESKTOP_MIN = 1000
+const DESKTOP_GEO = { W: 1320, H: 548, PAD_L: 70, PAD_R: 44, PAD_T: 118, PAD_B: 54, compact: false }
+const MIN_COMPACT_H = 280
+function geometryFor(width, vh, compact, reduce) {
+  if (!width || width >= DESKTOP_MIN) return DESKTOP_GEO
+  if (!compact) {
+    // Tablet: Story-Boxen bleiben im Kopf der Grafik (PAD_T), der Plot bekommt Hoehe.
+    return { W: width, H: Math.max(420, Math.round(width * 0.56)), PAD_L: 64, PAD_R: 24, PAD_T: 118, PAD_B: 48, compact: false }
+  }
+  // Telefon: fast quadratisch, gedeckelt auf gut die halbe Bildschirmhoehe, damit Grafik,
+  // Legende und Meilenstein-Karte gemeinsam in die Sticky-Buehne passen.
+  const plotH = Math.round(Math.max(MIN_COMPACT_H, Math.min(width, vh * 0.5)))
+  // Reduced Motion zeigt alle Meilenstein-Namen statisch in drei Zeilen ueber dem Plot.
+  const padT = reduce ? 78 : 26
+  return { W: width, H: plotH + padT - 26, PAD_L: 44, PAD_R: 10, PAD_T: padT, PAD_B: 34, compact: true }
+}
+const TAP_RADIUS_PX = 24 // Fingertoleranz fuer den Tipp auf einen Punkt (CSS-px)
 const Y0 = 2010
 const Y1 = 2026.5
 const F0 = 1e15
@@ -25,6 +40,7 @@ const F1 = 1e27
 
 // ---- Visual-Tuning (SVG) ----
 const DOT_R = 3.8
+const DOT_R_COMPACT = 3
 const DOT_OPACITY = 0.8 // Punkt-Deckkraft des gezuendeten/statischen Layers
 const DOT_OPACITY_BG = 0.18 // blasser Sternenhimmel im Scrolly-Modus (unter dem Ignite-Layer)
 const DOT_CORE_R = 1.25 // weisser Kern (Ware: Luminanz-Popout, Stern-Anmutung)
@@ -99,7 +115,7 @@ const fmtParams = (p) => {
 // Punkt-Layer, memoisiert: Hover-Rerenders des Parents ueberspringen die 466 gezeichneten Circles
 // (props stabil). 466 = die Teilmenge von epoch.json (528 Modelle) mit year >= Y0 und flop > 0.
 // Mit onTip: Halo-Circle traegt eine transparente Stroke-Trefferzone + Cursor; weisser Kern = Popout.
-const Dots = memo(function Dots({ pts, x, y, op, withCore, onTip }) {
+const Dots = memo(function Dots({ pts, x, y, op, withCore, onTip, r = DOT_R }) {
   return (
     <g pointerEvents={onTip ? undefined : 'none'}>
       {pts.map((m, i) => {
@@ -107,7 +123,7 @@ const Dots = memo(function Dots({ pts, x, y, op, withCore, onTip }) {
         const cy = y(m.flop)
         return (
           <g key={i}>
-            <circle cx={cx} cy={cy} r={DOT_R} fill={heat((Math.log10(m.flop) - HEAT_LOG_MIN) / HEAT_LOG_SPAN)} fillOpacity={op}
+            <circle cx={cx} cy={cy} r={r} fill={heat((Math.log10(m.flop) - HEAT_LOG_MIN) / HEAT_LOG_SPAN)} fillOpacity={op}
               {...(onTip ? {
                 stroke: 'transparent', strokeWidth: DOT_HIT_W, style: { cursor: 'pointer' },
                 onMouseEnter: (e) => onTip(m, e), onMouseMove: (e) => onTip(m, e), onMouseLeave: () => onTip(null),
@@ -122,8 +138,9 @@ const Dots = memo(function Dots({ pts, x, y, op, withCore, onTip }) {
 
 // Ein Meilenstein im Scrolly-Modus: Ring (Bounce via animiertem r) + gefensterte Story-Box (Einzelzeile
 // in der Header-Zone, an ms.px verankert). Eigene Komponente, damit useTransform der Hooks-Regel folgt.
-function Milestone({ progress, reveal, ms }) {
-  const story = STORY[ms.key]
+function Milestone({ progress, reveal, ms, geo }) {
+  const { W } = geo
+  const story = geo.compact ? null : STORY[ms.key]
   const op = useTransform(progress, [reveal, reveal + 0.02], [0, 1])
   const ringR = useTransform(progress, [reveal, reveal + 0.022, reveal + 0.05], [0.1, MS_RING_R * 1.3, MS_RING_R])
   const boxOp = useTransform(progress, [reveal, reveal + 0.02, reveal + 0.02 + STORY_WINDOW, reveal + 0.045 + STORY_WINDOW], [0, 1, 1, 0])
@@ -148,6 +165,19 @@ function Milestone({ progress, reveal, ms }) {
   )
 }
 
+// Telefon: dieselbe Story-Karte als HTML unter der Grafik, mit derselben Ein-/Ausblend-Kurve.
+function MilestoneCard({ progress, reveal, ms }) {
+  const story = STORY[ms.key]
+  const op = useTransform(progress, [reveal, reveal + 0.02, reveal + 0.02 + STORY_WINDOW, reveal + 0.045 + STORY_WINDOW], [0, 1, 1, 0])
+  if (!story) return null
+  return (
+    <motion.div aria-hidden="true" style={{ opacity: op, pointerEvents: 'none', background: 'var(--panel-2)', border: `1px solid ${PAL.machineLine}`, borderRadius: 6, padding: 'var(--s-3) var(--s-4)' }}>
+      <div className="t-label" style={{ color: PAL.machine, marginBottom: 'var(--s-2)' }}>{story.title} · {Math.floor(ms.year)}</div>
+      <div className="t-body" style={{ color: PAL.text, fontSize: '0.95rem', lineHeight: 1.45 }}>{story.text}</div>
+    </motion.div>
+  )
+}
+
 export default function ComputeExplosion() {
   const [data, setData] = useState(null)
   const reduce = useReducedMotion()
@@ -155,6 +185,14 @@ export default function ComputeExplosion() {
   // useScroll trackt den 300vh-Container. WICHTIG: kein Early-Return vor dem Container-Render, sonst
   // bindet useScroll an window. Im reduce-Branch bleibt scrollYProgress ungenutzt (0).
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] })
+  const compactVp = useCompact()
+  const vizRef = useRef(null)
+  const vizW = useElementWidth(vizRef)
+  // Viewport-Hoehe nur bei Breitenwechsel lesen: das Ein-/Ausfahren der mobilen Adressleiste
+  // aendert innerHeight beim Scrollen, die Grafik soll dabei nicht neu umbrechen.
+  const vh = useMemo(() => (typeof window === 'undefined' ? 800 : window.innerHeight), [vizW]) // eslint-disable-line react-hooks/exhaustive-deps
+  const geo = useMemo(() => geometryFor(vizW, vh, compactVp, Boolean(reduce)), [vizW, vh, compactVp, reduce])
+  const { W, H, PAD_L, PAD_R, PAD_T, PAD_B, compact } = geo
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/epoch.json`)
@@ -163,8 +201,8 @@ export default function ComputeExplosion() {
       .catch((e) => console.error('epoch laden:', e))
   }, [])
 
-  const x = useMemo(() => scaleLinear().domain([Y0, Y1]).range([PAD_L, W - PAD_R]), [])
-  const y = useMemo(() => scaleLog().domain([F0, F1]).range([H - PAD_B, PAD_T]).clamp(true), [])
+  const x = useMemo(() => scaleLinear().domain([Y0, Y1]).range([PAD_L, W - PAD_R]), [PAD_L, W, PAD_R])
+  const y = useMemo(() => scaleLog().domain([F0, F1]).range([H - PAD_B, PAD_T]).clamp(true), [H, PAD_B, PAD_T])
   const pts = useMemo(() => (data?.models ?? []).filter((m) => m.year >= Y0 && m.flop > 0), [data])
 
   // Frontier: groesster Compute je 0,5-Jahres-Fenster (monoton steigend)
@@ -198,7 +236,7 @@ export default function ComputeExplosion() {
     if (frontier.length < 2) return ''
     const first = frontier[0]; const last = frontier[frontier.length - 1]
     return `${frontierPath} L${last[0].toFixed(1)},${H - PAD_B} L${first[0].toFixed(1)},${H - PAD_B} Z`
-  }, [frontier, frontierPath])
+  }, [frontier, frontierPath, H, PAD_B])
   // x-Position auf der Frontier bei Pfadlaengen-Anteil v: exakt synchron zur pathLength-Animation.
   const xAtFrac = useMemo(() => {
     if (frontier.length < 2) return () => PAD_L
@@ -215,7 +253,7 @@ export default function ComputeExplosion() {
       }
       return frontier[frontier.length - 1][0]
     }
-  }, [frontier])
+  }, [frontier, PAD_L])
 
   // Meilensteine: Treffer am naechsten zum kanonischen Jahr (Debut), Ring an diesem Jahr positioniert.
   const milestones = useMemo(() => {
@@ -227,11 +265,13 @@ export default function ComputeExplosion() {
       found.push({ ...ms, m: best, px: x(Math.min(ms.year, Y1)), py: y(best.flop) })
     }
     found.sort((a, b) => a.year - b.year)
-    const MIN = 118
-    const lo = PAD_L + 46
-    const hi = W - PAD_R - 46
-    const rows = [[], []]
-    found.forEach((d, i) => { d.row = i % 2; rows[d.row].push(d) })
+    // Telefon: drei Zeilen mit kuerzerem Mindestabstand, sonst passen neun Namen nicht in 350 px.
+    const nRows = compact ? 3 : 2
+    const MIN = compact ? 80 : 118
+    const lo = PAD_L + (compact ? 22 : 46)
+    const hi = W - PAD_R - (compact ? 30 : 46)
+    const rows = Array.from({ length: nRows }, () => [])
+    found.forEach((d, i) => { d.row = i % nRows; rows[d.row].push(d) })
     for (const row of rows) {
       row.forEach((d, i) => {
         d.lx = Math.max(lo, Math.min(d.px, hi))
@@ -241,7 +281,7 @@ export default function ComputeExplosion() {
       if (over > 0) row.forEach((d) => { d.lx -= over })
     }
     return found
-  }, [pts, x, y])
+  }, [pts, x, y, compact, PAD_L, PAD_R, W])
 
   // Reveal-Schwellen: an die Linie gekoppelt (geometrischer Laengen-Anteil an ms.px), aber mit
   // Mindestabstand entzerrt und in [REVEAL_FIRST, REVEAL_LAST] normiert, damit nichts ueber 1.0 laeuft.
@@ -284,19 +324,49 @@ export default function ComputeExplosion() {
   // Bucket, rechts davon liegen aber noch die neuesten Punkte -> ohne Voll-Oeffnung waeren sie nie
   // gezuendet und nie klickbar (Nutzer-Befund).
   const clipRef = useRef(null)
-  const clipW = useCallback((v) => (v >= 0.995 ? W : Math.max(0, xAtFrac(v) - PAD_L)), [xAtFrac])
+  const clipW = useCallback((v) => (v >= 0.995 ? W : Math.max(0, xAtFrac(v) - PAD_L)), [xAtFrac, W, PAD_L])
   useMotionValueEvent(drawnLength, 'change', (v) => { clipRef.current?.setAttribute('width', String(clipW(v))) })
   useEffect(() => { clipRef.current?.setAttribute('width', String(clipW(drawnLength.get()))) }, [clipW, drawnLength])
 
   // Hover-Tooltip (Yi: elaborate): Details zu jedem Modell, Position relativ zum .viz-Container.
-  const vizRef = useRef(null)
   const [tip, setTip] = useState(null)
+  const pointerTypeRef = useRef('mouse')
   const onTip = useCallback((m, e) => {
+    if (pointerTypeRef.current !== 'mouse') return // Finger: der Tipp-Handler unten entscheidet
     if (!m) { setTip(null); return }
     const rect = vizRef.current?.getBoundingClientRect()
     if (!rect) return
     setTip({ m, px: e.clientX - rect.left, py: e.clientY - rect.top })
   }, [])
+  // Tipp-Aequivalent zum Hover: der naechste Punkt im Fingerradius bekommt den Tooltip, ein Tipp
+  // daneben schliesst ihn. Die Punkte selbst sind auf dem Telefon nur 6 px gross.
+  const onSvgPointerDown = useCallback((e) => { pointerTypeRef.current = e.pointerType || 'mouse' }, [])
+  const onSvgClick = useCallback((e) => {
+    if (pointerTypeRef.current === 'mouse') return
+    const ctm = e.currentTarget.getScreenCTM()
+    const rect = vizRef.current?.getBoundingClientRect()
+    if (!ctm || !rect) return
+    const scale = Math.hypot(ctm.a, ctm.b) || 1
+    const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse())
+    let best = null
+    let bd = (TAP_RADIUS_PX / scale) ** 2
+    for (const m of pts) {
+      const dx = x(Math.min(m.year, Y1)) - p.x
+      const dy = y(m.flop) - p.y
+      const d = dx * dx + dy * dy
+      if (d < bd) { bd = d; best = m }
+    }
+    if (!best) { setTip(null); return }
+    const s = new DOMPoint(x(Math.min(best.year, Y1)), y(best.flop)).matrixTransform(ctm)
+    setTip({ m: best, px: s.x - rect.left, py: s.y - rect.top })
+  }, [pts, x, y])
+  // Ein Tipp ausserhalb der Grafik schliesst den Tooltip (Hover hat dafuer mouseleave).
+  useEffect(() => {
+    if (!tip || pointerTypeRef.current === 'mouse') return undefined
+    const close = (e) => { if (!vizRef.current?.contains(e.target)) setTip(null) }
+    document.addEventListener('pointerdown', close)
+    return () => document.removeEventListener('pointerdown', close)
+  }, [tip])
 
   const yTicks = [1e15, 1e18, 1e21, 1e24, 1e27]
   const xTicks = [2012, 2016, 2020, 2024]
@@ -309,17 +379,19 @@ export default function ComputeExplosion() {
       {yTicks.map((t) => (
         <g key={t} pointerEvents="none">
           <line x1={PAD_L} y1={y(t)} x2={W - PAD_R} y2={y(t)} stroke={PAL.grid} strokeWidth={GRID_W} />
-          <text x={PAD_L - 12} y={y(t) + 4} textAnchor="end" className="t-data" fill={PAL.muted}>{fmtExp(Math.round(Math.log10(t)))}</text>
+          <text x={PAD_L - (compact ? 6 : 12)} y={y(t) + 4} textAnchor="end" className="t-data" fill={PAL.muted}>{fmtExp(Math.round(Math.log10(t)))}</text>
         </g>
       ))}
       {xTicks.map((t) => (
         <g key={t} pointerEvents="none">
           <line x1={x(t)} y1={PAD_T} x2={x(t)} y2={H - PAD_B} stroke={`rgba(236,232,225,${GRID_V_A})`} strokeWidth={GRID_W} />
           <line x1={x(t)} y1={H - PAD_B} x2={x(t)} y2={H - PAD_B + 5} stroke={PAL.axis} strokeWidth="1" />
-          <text x={x(t)} y={H - PAD_B + 26} textAnchor="middle" className="t-data" fill={PAL.muted}>{t}</text>
+          <text x={x(t)} y={H - PAD_B + (compact ? 22 : 26)} textAnchor="middle" className="t-data" fill={PAL.muted}>{t}</text>
         </g>
       ))}
-      <text transform={`translate(16, ${(PAD_T + H - PAD_B) / 2}) rotate(-90)`} textAnchor="middle" className="t-data" fill={PAL.muted} pointerEvents="none">Training-Compute (FLOP)</text>
+      {compact
+        ? <text x={2} y={PAD_T - 12} className="t-data" fill={PAL.muted} pointerEvents="none">FLOP, logarithmisch</text>
+        : <text transform={`translate(16, ${(PAD_T + H - PAD_B) / 2}) rotate(-90)`} textAnchor="middle" className="t-data" fill={PAL.muted} pointerEvents="none">Training-Compute (FLOP)</text>}
       <line x1={PAD_L} y1={H - PAD_B} x2={W - PAD_R} y2={H - PAD_B} stroke={PAL.axis} strokeWidth="1" pointerEvents="none" />
     </>
   )
@@ -330,8 +402,12 @@ export default function ComputeExplosion() {
       <stop offset="100%" stopColor={PAL.machine} stopOpacity="0" />
     </linearGradient>
   )
+  // Tooltip in der Spalte halten: am Rand verschoben, am oberen Rand unter den Punkt geklappt.
+  const TIP_W = Math.min(300, Math.max(180, vizW - 16))
+  const tipLeft = tip ? (vizW ? Math.max(TIP_W / 2 + 4, Math.min(tip.px, vizW - TIP_W / 2 - 4)) : tip.px) : 0
+  const tipBelow = tip ? tip.py < 110 : false
   const tipEl = tip && (
-    <div style={{ position: 'absolute', left: tip.px, top: tip.py, transform: 'translate(-50%, calc(-100% - 12px))', pointerEvents: 'none', zIndex: 30, background: 'var(--panel-2)', border: `1px solid ${PAL.machineLine}`, borderRadius: 8, padding: 'var(--s-2) var(--s-3)', maxWidth: 300, boxShadow: '0 10px 30px rgba(0,0,0,0.55)' }}>
+    <div style={{ position: 'absolute', left: tipLeft, top: tip.py, transform: tipBelow ? 'translate(-50%, 14px)' : 'translate(-50%, calc(-100% - 12px))', pointerEvents: 'none', zIndex: 30, background: 'var(--panel-2)', border: `1px solid ${PAL.machineLine}`, borderRadius: 8, padding: 'var(--s-2) var(--s-3)', maxWidth: TIP_W, boxShadow: '0 10px 30px rgba(0,0,0,0.55)' }}>
       <div className="t-data" style={{ color: PAL.text, fontWeight: 600, lineHeight: 1.3, overflowWrap: 'anywhere' }}>{tip.m.name}</div>
       <div className="t-data" style={{ color: PAL.muted, marginTop: 2 }}>{tip.m.org}{Number.isFinite(tip.m.year) ? ` · ${Math.floor(tip.m.year)}` : ''}{tip.m.domain ? ` · ${tip.m.domain}` : ''}</div>
       <div className="t-data" style={{ color: PAL.muted, marginTop: 2 }}>
@@ -346,11 +422,22 @@ export default function ComputeExplosion() {
       <tbody>{milestones.map((ms) => <tr key={ms.key}><td>{ms.label}</td><td>{Math.floor(ms.year)}</td><td>{ms.m.flop.toExponential(1)}</td></tr>)}</tbody>
     </table>
   )
-  const heatLegend = (
+  const heatBar = <div aria-hidden="true" style={{ height: 10, width: compact ? undefined : 220, flex: compact ? '1 1 0' : undefined, minWidth: compact ? 80 : undefined, borderRadius: 5, background: `linear-gradient(90deg, ${heat(0)}, ${heat(0.5)}, ${heat(1)})` }} />
+  const heatLegend = compact ? (
+    // Telefon: eine Zeile Skala, eine Zeile Bedienung. Die Endwerte stehen an der Skala.
+    <div style={{ marginTop: 'var(--s-3)', color: PAL.muted }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
+        <span className="t-data" style={{ color: PAL.text }}>{fmtExp(HEAT_LOG_MIN)}</span>
+        {heatBar}
+        <span className="t-data" style={{ color: PAL.text }}>{fmtExp(HEAT_LOG_MIN + HEAT_LOG_SPAN)} FLOP</span>
+      </div>
+      <p className="t-data" style={{ margin: 'var(--s-2) 0 0', opacity: 0.75, fontSize: '0.78rem' }}>Farbe = Compute. Punkt antippen für Details.</p>
+    </div>
+  ) : (
     <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--s-3)', marginTop: 'var(--s-3)', color: PAL.muted }}>
       <span className="t-data">weniger Compute</span>
       <span className="t-data" style={{ color: PAL.text }}>{fmtExp(HEAT_LOG_MIN)} FLOP</span>
-      <div aria-hidden="true" style={{ height: 10, width: 220, borderRadius: 5, background: `linear-gradient(90deg, ${heat(0)}, ${heat(0.5)}, ${heat(1)})` }} />
+      {heatBar}
       <span className="t-data" style={{ color: PAL.text }}>{fmtExp(HEAT_LOG_MIN + HEAT_LOG_SPAN)} FLOP</span>
       <span className="t-data">mehr Compute</span>
       <span className="t-data" style={{ opacity: 0.75 }}>· Punkt berühren für Details</span>
@@ -393,21 +480,22 @@ export default function ComputeExplosion() {
           <div className="editorial-grid">
             {header(<>Jeder Punkt ist ein KI-Modell, seine Höhe das Rechenbudget seines Trainings, logarithmisch. Die <span style={{ color: PAL.machine }}>Front</span> folgt dem jeweils größten Lauf der Geschichte; die Ringe markieren Meilensteine.</>)}
             <div className="viz" ref={vizRef} style={{ gridColumn: '1 / -1', position: 'relative' }}>
-              <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Training-Compute der KI-Modelle in FLOP (logarithmisch) über die Jahre, mit Meilensteinen.">
+              <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Training-Compute der KI-Modelle in FLOP (logarithmisch) über die Jahre, mit Meilensteinen." onPointerDown={onSvgPointerDown} onClick={onSvgClick}>
                 <defs>{areaDefs}</defs>
                 {axes}
                 <path d={areaPath} fill="url(#ce-area)" pointerEvents="none" />
-                <Dots pts={pts} x={x} y={y} op={DOT_OPACITY} withCore onTip={onTip} />
+                <Dots pts={pts} x={x} y={y} op={DOT_OPACITY} withCore onTip={onTip} r={compact ? DOT_R_COMPACT : DOT_R} />
                 <path d={frontierPath} fill="none" stroke={PAL.machine} strokeWidth={FRONTIER_GLOW_W} strokeOpacity={FRONTIER_GLOW_A} strokeLinecap="round" strokeLinejoin="round" pointerEvents="none" />
                 <path d={frontierPath} fill="none" stroke={PAL.machine} strokeWidth={FRONTIER_W} strokeLinecap="round" strokeLinejoin="round" pointerEvents="none" />
                 {milestones.map((ms) => {
-                  const rowY = ms.row === 0 ? 38 : 76
+                  // Telefon: drei Zeilen nur mit Namen (das Jahr liest man an der x-Achse ab).
+                  const rowY = compact ? 14 + ms.row * 18 : (ms.row === 0 ? 38 : 76)
                   return (
                     <g key={ms.key} pointerEvents="none">
-                      <line x1={ms.lx} y1={rowY + 8} x2={ms.px} y2={ms.py - 6} stroke={PAL.machine} strokeWidth="1" opacity="0.4" />
+                      <line x1={ms.lx} y1={rowY + (compact ? 4 : 8)} x2={ms.px} y2={ms.py - 6} stroke={PAL.machine} strokeWidth="1" opacity="0.4" />
                       <circle cx={ms.px} cy={ms.py} r={MS_RING_R} fill="none" stroke={PAL.machine} strokeWidth={MS_RING_W} />
                       <text x={ms.lx} y={rowY} textAnchor="middle" className="t-data" fill={PAL.text}>{ms.label}</text>
-                      <text x={ms.lx} y={rowY + 15} textAnchor="middle" className="t-data" fill={PAL.muted}>{Math.floor(ms.year)}</text>
+                      {!compact && <text x={ms.lx} y={rowY + 15} textAnchor="middle" className="t-data" fill={PAL.muted}>{Math.floor(ms.year)}</text>}
                     </g>
                   )
                 })}
@@ -423,15 +511,23 @@ export default function ComputeExplosion() {
   }
 
   // ---- Scrollytelling-Modus ----
+  const scrollyHint = <>Jeder Punkt ein KI-Modell, seine Höhe das Rechenbudget seines Trainings, logarithmisch.<span style={{ color: PAL.machine }}> Scrolle</span>, und die <span style={{ color: PAL.machine }}>Front</span> folgt dem jeweils größten Lauf der Geschichte, Meilenstein für Meilenstein.</>
   return (
     <section id="compute" aria-label="Die Explosion der Rechenleistung" style={{ background: SCENE_BG }}>
+      {/* Telefon: der Erklaertext steht VOR der Buehne. In der 100svh-Buehne war er hoeher als
+          der Bildschirm und schob Kicker und Legende aus dem Bild (gemessen bei 375 x 667). */}
+      {compact && (
+        <div className="layout-container" style={{ paddingTop: 'var(--s-10)' }}>
+          <div className="editorial-grid">{header(scrollyHint)}</div>
+        </div>
+      )}
       <div ref={containerRef} style={{ position: 'relative', height: `${CONTAINER_VH}vh` }}>
-        <div style={{ position: 'sticky', top: 0, height: '100vh', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
+        <div className="sticky-stage">
           <div className="layout-container" style={{ width: '100%' }}>
             <div className="editorial-grid">
-              {header(<>Jeder Punkt ein KI-Modell, seine Höhe das Rechenbudget seines Trainings, logarithmisch.<span style={{ color: PAL.machine }}> Scrolle</span>, und die <span style={{ color: PAL.machine }}>Front</span> folgt dem jeweils größten Lauf der Geschichte, Meilenstein für Meilenstein.</>)}
+              {!compact && header(scrollyHint)}
               <div className="viz" ref={vizRef} style={{ gridColumn: '1 / -1', position: 'relative' }}>
-                <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Training-Compute der KI-Modelle in FLOP (logarithmisch) über die Jahre. Beim Scrollen waechst die Frontier-Linie und Meilensteine erscheinen.">
+                <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Training-Compute der KI-Modelle in FLOP (logarithmisch) über die Jahre. Beim Scrollen waechst die Frontier-Linie und Meilensteine erscheinen." onPointerDown={onSvgPointerDown} onClick={onSvgClick}>
                   <defs>
                     {areaDefs}
                     {/* Ignite-Clip: zuendet Flaeche + hellen Dot-Layer exakt hinter der wachsenden Frontier. */}
@@ -439,17 +535,22 @@ export default function ComputeExplosion() {
                   </defs>
                   {axes}
                   {/* Auch der ungezuendete Layer ist hoverbar: Tooltip-Zugriff haengt nicht vom Scroll-Stand ab */}
-                  <Dots pts={pts} x={x} y={y} op={DOT_OPACITY_BG} onTip={onTip} />
+                  <Dots pts={pts} x={x} y={y} op={DOT_OPACITY_BG} onTip={onTip} r={compact ? DOT_R_COMPACT : DOT_R} />
                   <g clipPath="url(#ce-ignite)">
                     <path d={areaPath} fill="url(#ce-area)" pointerEvents="none" />
-                    <Dots pts={pts} x={x} y={y} op={DOT_OPACITY} withCore onTip={onTip} />
+                    <Dots pts={pts} x={x} y={y} op={DOT_OPACITY} withCore onTip={onTip} r={compact ? DOT_R_COMPACT : DOT_R} />
                   </g>
                   <motion.path d={frontierPath} fill="none" stroke={PAL.machine} strokeWidth={FRONTIER_GLOW_W} strokeOpacity={FRONTIER_GLOW_A} strokeLinecap="round" strokeLinejoin="round" pointerEvents="none" style={{ pathLength: drawnLength }} />
                   <motion.path d={frontierPath} fill="none" stroke={PAL.machine} strokeWidth={FRONTIER_W} strokeLinecap="round" strokeLinejoin="round" pointerEvents="none" style={{ pathLength: drawnLength }} />
-                  {milestones.map((ms) => <Milestone key={ms.key} progress={scrollYProgress} reveal={reveals[ms.key] ?? 1} ms={ms} />)}
+                  {milestones.map((ms) => <Milestone key={ms.key} progress={scrollYProgress} reveal={reveals[ms.key] ?? 1} ms={ms} geo={geo} />)}
                 </svg>
                 {tipEl}
                 {heatLegend}
+                {compact && (
+                  <div className="ce-story-slot">
+                    {milestones.map((ms) => <MilestoneCard key={ms.key} progress={scrollYProgress} reveal={reveals[ms.key] ?? 1} ms={ms} />)}
+                  </div>
+                )}
               </div>
             </div>
           </div>

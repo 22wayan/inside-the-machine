@@ -130,7 +130,7 @@ export default function Interlude() {
   return (
     <section id="interlude" aria-label="Uebergang zum Finale" style={{ background: SCENE_BG }}>
       <div ref={containerRef} style={{ position: 'relative', height: `${CONTAINER_VH}vh` }}>
-        <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="sticky-stage" style={{ justifyContent: 'center' }}>
           <div className="layout-container">{textBlock(false)}</div>
           {/* Maschine lugt von rechts herein (x in % der eigenen Breite; 105% = komplett draussen) */}
           <motion.div aria-hidden="true" style={{ position: 'absolute', right: 0, top: '30%', x: machineX, rotate: machineRot, transformOrigin: '0% 100%' }}>

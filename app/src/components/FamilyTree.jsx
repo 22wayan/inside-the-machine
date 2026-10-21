@@ -5,6 +5,7 @@ import { select } from 'd3-selection'
 import { quadtree } from 'd3-quadtree'
 import { PAL, REL_COLOR, STAR, SCENE_BG } from '../theme'
 import { Reveal, SourceNote } from './Motion'
+import { useMediaQuery } from './useViewport'
 
 // Fokussierbare Elemente der Fokus-Falle des Explorers (identisch zu ledger/ReadingDesk.jsx).
 const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -70,6 +71,11 @@ const EDGE_LINEAGE_ALPHA = 0.18
 const EDGE_MERGE_MIN = 0.6 // Verifizierte Merge-Brücken (nur 3) sollen klar auffindbar sein, nicht bloß angedeutet.
 const EDGE_MERGE_MAX = 0.82
 const HOVER_RADIUS_PX = 14
+const TOUCH_RADIUS_CSS = 22 // Fingertoleranz in CSS-px (der Maus-Radius oben ist in Canvas-Einheiten)
+// Unter dieser Canvas-Breite (CSS-px) wachsen Label-Schrift und -Pill gegen die Verkleinerung:
+// der Canvas rechnet intern immer 1320 px breit, bei 350 px Anzeige wurden 13 px Labels zu 3,4 px.
+const UI_SCALE_BELOW = 1000
+const UI_SCALE_MAX = 3.4
 const HOVER_RADIUS_MIN = 3 // Basis-px Mindesttoleranz beim Hover
 const HOVER_RING = PAL.machine
 const MERGE_BOW = 0.14 // Bogen der Merge-Kurven (Kontrollpunkt senkrecht zur Sehne)
@@ -222,7 +228,22 @@ export default function FamilyTree() {
   const overlayRef = useRef(null) // der Explorer-Dialog: haelt den Startfokus und die Fokus-Falle
   const openBtnRef = useRef(null) // der ausloesende Knopf: bekommt den Fokus beim Schliessen zurueck
   const wasOpenRef = useRef(false)
+  const uiScaleRef = useRef(1) // Canvas-Einheiten je CSS-px, nur unter UI_SCALE_BELOW > 1
+  const pointerTypeRef = useRef('mouse')
   useEffect(() => { openRef.current = open }, [open])
+
+  // Anzeigegroesse des Canvas messen (Uebersicht und Explorer haben verschiedene Groessen).
+  useEffect(() => {
+    const cv = canvasRef.current
+    if (!cv || typeof ResizeObserver === 'undefined') return undefined
+    const ro = new ResizeObserver(([entry]) => {
+      const w = entry.contentRect.width
+      uiScaleRef.current = w > 0 && w < UI_SCALE_BELOW ? Math.min(UI_SCALE_MAX, W / w) : 1
+      drawRef.current()
+    })
+    ro.observe(cv)
+    return () => ro.disconnect()
+  }, [])
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/familytree.json`).then((r) => r.json()).then(setData).catch((e) => console.error('familytree:', e))
@@ -412,8 +433,14 @@ export default function FamilyTree() {
   const draw = useCallback(() => {
     const cv = canvasRef.current
     if (!cv || !data || !geom) return
-    const dpr = Math.min(2, window.devicePixelRatio || 1)
-    if (cv.width !== W * dpr) { cv.width = W * dpr; cv.height = H * dpr }
+    // Backingstore: auf Desktop wie bisher W x dpr. Unter UI_SCALE_BELOW so gross wie die Anzeige
+    // (CSS-Breite x Geraete-dpr): ein 350 px breiter Canvas fuellte sonst 2640 x 1640 Pixel je
+    // Frame, rund sechsmal mehr als das Telefon ueberhaupt darstellt.
+    const devDpr = window.devicePixelRatio || 1
+    const ui = uiScaleRef.current
+    const dpr = ui > 1 ? Math.min(3, devDpr) / ui : Math.min(2, devDpr)
+    const bw = Math.round(W * dpr)
+    if (cv.width !== bw) { cv.width = bw; cv.height = Math.round(H * dpr) }
     const ctx = cv.getContext('2d')
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, W, H)
@@ -542,7 +569,9 @@ export default function FamilyTree() {
     // 5. Smart-Labels: NUR Hub-Sonnen (Diversity-gefiltert), mit dunkler Pill. KEINE statischen Kinder-Labels mehr.
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'
     const nLab = (LOD_HUBS.find(([lim]) => zr < lim) || [0, 130])[1]
-    ctx.font = '600 13px "IBM Plex Mono", monospace'
+    const pillH = PILL_H * ui
+    const pillPadX = PILL_PADX * ui
+    ctx.font = `600 ${13 * ui}px "IBM Plex Mono", monospace`
     const placed = [] // bereits gezeichnete Label-Boxen -> Kollisions-Vermeidung (Decluttering)
     // Spotlight: NUR fokaler Hub + seine MERGE-verbundenen Hubs (Kontext der Gold-Bruecken, egal welcher Rang).
     // Ambient: die Top-N nach Diversity.
@@ -552,15 +581,15 @@ export default function FamilyTree() {
       const j = labelList[oi]
       const h = data.hubs[j]; const x = sx(hx[j], hy[j]), y = sy(hx[j], hy[j]); const r = hubR(h.c) * zk
       if (!vis(x, y, 60)) continue
-      const ty = y - r - 11
+      const ty = y - r - 11 * ui
       const tw = ctx.measureText(h.label).width
-      const lx0 = x - tw / 2 - PILL_PADX, lx1 = x + tw / 2 + PILL_PADX, ly0 = ty - PILL_H / 2, ly1 = ty + PILL_H / 2
+      const lx0 = x - tw / 2 - pillPadX, lx1 = x + tw / 2 + pillPadX, ly0 = ty - pillH / 2, ly1 = ty + pillH / 2
       let clash = false
       for (let p = 0; p < placed.length; p++) { const bx = placed[p]; if (lx0 < bx[2] && lx1 > bx[0] && ly0 < bx[3] && ly1 > bx[1]) { clash = true; break } }
       if (clash) continue // ueberlappendes Label weglassen; das hoeher priorisierte (zuerst gezeichnete) gewinnt
-      placed.push([lx0 - 4, ly0 - 4, lx1 + 4, ly1 + 4]) // kleine Marge -> Labels kleben nicht aneinander
+      placed.push([lx0 - 4 * ui, ly0 - 4 * ui, lx1 + 4 * ui, ly1 + 4 * ui]) // kleine Marge -> Labels kleben nicht aneinander
       ctx.fillStyle = hexA(PAL.bg, 0.92)
-      if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(lx0, ly0, lx1 - lx0, PILL_H, 6); ctx.fill() } else ctx.fillRect(lx0, ly0, lx1 - lx0, PILL_H)
+      if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(lx0, ly0, lx1 - lx0, pillH, 6 * ui); ctx.fill() } else ctx.fillRect(lx0, ly0, lx1 - lx0, pillH)
       ctx.fillStyle = PAL.ink; ctx.fillText(h.label, x, ty)
     }
     // Phase 7.7: KEINE statischen Kinder-Labels und KEIN Kind-Canvas-Label beim Hover mehr (kein Deep-Zoom-Matsch).
@@ -606,7 +635,10 @@ export default function FamilyTree() {
 
   // Ambient-Loop: kontinuierlicher rAF mit delta-akkumulierten Phasen (kein Sprung nach Pause/Tab-Wechsel).
   // Rotation pausiert beim Hover (fokussiertes System bleibt unter dem Cursor). Aus bei reduced-motion / off-screen.
-  const animate = !reduce && (onScreen || open)
+  // Die Ambient-Rotation ist Dekoration. Auf Touch-Geraeten und schmalen Viewports bleibt sie aus:
+  // gemessen 4 fps bei 390 px und 4-facher CPU-Drosselung, der Frame-Loop blockierte das Scrollen.
+  const lowPower = useMediaQuery('(max-width: 1023px), (pointer: coarse)')
+  const animate = !reduce && !lowPower && (onScreen || open)
   useEffect(() => {
     if (!animate) {
       animatingRef.current = false
@@ -682,6 +714,16 @@ export default function FamilyTree() {
     return () => document.removeEventListener('keydown', onKey)
   }, [open, closeExplorer])
 
+  // Explorer offen: die Seite dahinter darf nicht mitscrollen (auf Touch-Geraeten lief ein Wisch
+  // ueber die Kopfzeile sonst bis zur Story durch).
+  useEffect(() => {
+    if (!open) return undefined
+    const root = document.documentElement
+    const prev = root.style.overflow
+    root.style.overflow = 'hidden'
+    return () => { root.style.overflow = prev }
+  }, [open])
+
   // Rueckgabe an den AUSLOESENDEN Knopf, egal ob per Escape oder per Schliessen-Knopf geschlossen
   // wurde. Erst im naechsten Frame, wenn der Knopf wieder im DOM steht.
   useEffect(() => {
@@ -704,7 +746,9 @@ export default function FamilyTree() {
     const by = CY + dx * sa + dy * ca
     const k = tfRef.current.k
     const zk = Math.min(2.4, Math.max(0.75, k * 0.5 + 0.5))
-    const rBase = Math.max(HOVER_RADIUS_MIN, HOVER_RADIUS_PX / k)
+    // Finger: Toleranz in CSS-px umgerechnet, sonst traf man auf dem Telefon kaum eine Sonne.
+    const touch = pointerTypeRef.current !== 'mouse'
+    const rBase = Math.max(HOVER_RADIUS_MIN, (touch ? Math.max(HOVER_RADIUS_PX, TOUCH_RADIUS_CSS * (W / rect.width)) : HOVER_RADIUS_PX) / k)
     // Sonnen priorisiert: innerhalb ihres gerenderten Radius (in Basis-px) gewinnt die Sonne gegen gestauchte Kinder -> HUD trifft.
     const { hx, hy } = geom; const hubs = data.hubs
     let bj = -1; let bd = Infinity
@@ -717,12 +761,16 @@ export default function FamilyTree() {
     return geom.qt.find(bx, by, rBase) || null
   }
   const onMove = (e) => {
+    if (e.pointerType && e.pointerType !== 'mouse') return // Touch: Auswahl per Tipp, kein Hover
     const nd = hit(e)
     setHover(nd ? { node: nd, cx: e.clientX, cy: e.clientY } : null)
   }
   const onClick = (e) => {
     const nd = hit(e)
-    if (nd) { setSel(nd); if (!open) setOpen(true) }
+    const touch = pointerTypeRef.current !== 'mouse'
+    // Touch: der Tipp uebernimmt die Rolle des Hovers (Familien-Spotlight), das Profil ersetzt das HUD.
+    if (touch) setHover(nd ? { node: nd, cx: e.clientX, cy: e.clientY, touch: true } : null)
+    if (nd) { setSel(nd); if (!open) setOpen(true) } else if (touch) setSel(null)
   }
 
   const profile = useMemo(() => {
@@ -738,16 +786,24 @@ export default function FamilyTree() {
   const relColor = Object.fromEntries(rels.map((r) => [r.rel, REL_COLOR[r.rel]]))
 
   // Canvas + Deep-Space-Vignette als eine relative Zone.
+  // Explorer: der Canvas behaelt sein Seitenverhaeltnis (contain ueber Container-Query-Einheiten).
+  // Vorher fuellte er die Zone mit width/height 100 % und wurde auf dem Telefon hochkant um
+  // Faktor 2,6 verzerrt (gemessen: 390 x 621 CSS-px fuer einen 1320 x 820-Inhalt).
   const canvasZone = (
-    <div style={open ? { position: 'relative', flex: 1, minHeight: 0, width: '100%' } : { position: 'absolute', inset: 0 }}>
+    <div style={open ? { position: 'relative', flex: 1, minHeight: 0, width: '100%', containerType: 'size' } : { position: 'absolute', inset: 0 }}>
+      <div style={open
+        ? { position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: `min(100cqw, 100cqh * ${W} / ${H})`, aspectRatio: `${W} / ${H}` }
+        : { position: 'absolute', inset: 0 }}>
       <canvas ref={canvasRef}
+        onPointerDown={(e) => { pointerTypeRef.current = e.pointerType || 'mouse' }}
         onPointerMove={onMove}
         onPointerEnter={() => { cursorOverRef.current = true }}
         onPointerLeave={() => { cursorOverRef.current = false; setHover(null) }}
         onClick={onClick}
         role="img" aria-label="Galaxie der Modellfamilien. Werte in der Tabelle darunter."
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block', cursor: hover?.node ? 'pointer' : (open ? 'grab' : 'default') }} />
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block', cursor: hover?.node ? 'pointer' : (open ? 'grab' : 'default'), touchAction: open ? 'none' : undefined }} />
       <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: VIGNETTE }} />
+      </div>
     </div>
   )
 
@@ -780,12 +836,15 @@ export default function FamilyTree() {
           ref={overlayRef}
           {...(open ? { role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Galaxie erkunden', tabIndex: -1 } : {})}
           style={open
-            ? { position: 'fixed', inset: 0, zIndex: 60, background: PAL.bg, display: 'flex', flexDirection: 'column', outline: 'none' }
+            ? { position: 'fixed', inset: 0, zIndex: 60, background: PAL.bg, display: 'flex', flexDirection: 'column', outline: 'none', overscrollBehavior: 'contain' }
             : { position: 'relative', width: '100%', aspectRatio: `${W} / ${H}` }}>
           {open && (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 'var(--s-4)', padding: 'var(--s-4) var(--s-6)', borderBottom: `1px solid ${PAL.hairline}` }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-1)', minWidth: 0 }}>
-                <span className="mono" style={{ color: PAL.muted, fontSize: '0.8rem' }}>Galaxie erkunden · Ziehen und Scrollen zoomt, Klick öffnet ein Profil</span>
+                <span className="mono" style={{ color: PAL.muted, fontSize: '0.8rem' }}>
+                  <span className="only-hover">Galaxie erkunden · Ziehen und Scrollen zoomt, Klick öffnet ein Profil</span>
+                  <span className="only-touch">Galaxie erkunden · Ziehen verschiebt, zwei Finger zoomen, Tippen öffnet ein Profil</span>
+                </span>
                 <span className="mono" style={{ color: PAL.muted, fontSize: '0.72rem', display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--s-1) var(--s-4)' }}>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                     <span aria-hidden="true" style={{ width: 16, borderTop: `2px solid ${hexA(PAL.human, 0.75)}`, display: 'inline-block' }} />
@@ -795,21 +854,21 @@ export default function FamilyTree() {
                     <span aria-hidden="true" style={{ width: 16, borderTop: `2px solid ${REL_COLOR.merge}`, display: 'inline-block' }} />
                     goldene Bögen = Merges zweier Familien
                   </span>
-                  <span>Auf eine Sonne zeigen hebt ihre Familie hervor</span>
+                  <span><span className="only-hover">Auf eine Sonne zeigen</span><span className="only-touch">Eine Sonne antippen</span> hebt ihre Familie hervor</span>
                 </span>
               </div>
-              <button onClick={closeExplorer} aria-label="Explorer schließen" className="mono"
+              <button onClick={closeExplorer} aria-label="Explorer schließen" className="mono tap-min"
                 style={{ background: 'transparent', border: `1px solid ${PAL.hairline}`, color: PAL.text, borderRadius: 999, padding: 'var(--s-1) var(--s-4)', cursor: 'pointer', fontSize: '0.8rem', flexShrink: 0, whiteSpace: 'nowrap' }}>✕ Schließen</button>
             </div>
           )}
           {canvasZone}
           {!open && (
-            <button ref={openBtnRef} onClick={() => setOpen(true)} className="mono"
+            <button ref={openBtnRef} onClick={() => setOpen(true)} className="mono tap-min"
               style={{ position: 'absolute', right: 'var(--s-4)', bottom: 'var(--s-4)', background: PAL.machine, color: PAL.onAccent, border: 'none', borderRadius: 999, padding: 'var(--s-2) var(--s-5)', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600 }}>
               ⤢ Galaxie erkunden
             </button>
           )}
-          {hover?.node && (
+          {hover?.node && !hover.touch && (
             <div style={{ position: 'fixed', left: hover.cx, top: hover.cy, transform: 'translate(-50%, calc(-100% - 14px))', pointerEvents: 'none', zIndex: 80, background: 'var(--panel-2)', border: `1px solid ${PAL.machineLine}`, borderRadius: 8, padding: 'var(--s-3) var(--s-4)', maxWidth: 320, boxShadow: '0 10px 30px rgba(0,0,0,0.55)' }}>
               {/* Phase 7.7: voller, ungeschnittener Name (Hub: org/model via id), Umbruch statt Truncation. */}
               <div className="t-data" style={{ color: PAL.text, fontWeight: 600, lineHeight: 1.25, overflowWrap: 'anywhere' }}>
@@ -836,7 +895,7 @@ export default function FamilyTree() {
             <div className="mono" style={{ position: 'absolute', right: 'var(--s-5)', bottom: 'var(--s-5)', width: 'min(360px, 90%)', background: 'var(--panel-2)', border: `1px solid ${PAL.machineLine}`, borderRadius: 10, padding: 'var(--s-4) var(--s-5)', zIndex: 70, boxShadow: '0 16px 48px rgba(0,0,0,0.6)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--s-2)' }}>
                 <div className="display" style={{ fontSize: '1.15rem', color: PAL.text, lineHeight: 1.15 }}>{profile.title}</div>
-                <button onClick={() => setSel(null)} aria-label="Profil schließen" style={{ background: 'transparent', border: 'none', color: PAL.muted, cursor: 'pointer', fontSize: '1rem' }}>✕</button>
+                <button onClick={() => { setSel(null); setHover(null) }} aria-label="Profil schließen" className="tap-min" style={{ background: 'transparent', border: 'none', color: PAL.muted, cursor: 'pointer', fontSize: '1rem' }}>✕</button>
               </div>
               <div style={{ color: PAL.muted, fontSize: '0.74rem', marginTop: 'var(--s-2)', lineHeight: 1.7 }}>
                 {profile.hub ? (

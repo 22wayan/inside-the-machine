@@ -235,7 +235,12 @@ export default function LedgerSheet({
     focusDocRef.current = (id) => docBtnsRef.current[id]?.focus()
     return () => { focusDocRef.current = null }
   }, [focusDocRef])
-  useEffect(() => () => { cancelAnimationFrame(drawRafRef.current); cancelAnimationFrame(hitRafRef.current) }, [])
+  // Die Refs nach dem Abbrechen auf 0 setzen: sonst haelt requestDraw nach einem Remount (React
+  // StrictMode im Dev-Server) die abgebrochene Frame-ID fuer "laeuft schon" und zeichnet nie.
+  useEffect(() => () => {
+    cancelAnimationFrame(drawRafRef.current); drawRafRef.current = 0
+    cancelAnimationFrame(hitRafRef.current); hitRafRef.current = 0
+  }, [])
 
   // --- Rect nur im ResizeObserver und bei scroll messen, nie im mousemove ---
   useEffect(() => {
