@@ -716,6 +716,63 @@ body::after {
   .ledger-desk-score { max-width: 260px; }
 }
 
+/* ============================================================================
+   MOBIL - gemeinsame Regeln fuer Telefon und Tablet. Desktop bleibt unveraendert: jede Regel
+   haengt an einer Breiten-, Pointer- oder Hover-Abfrage.
+   ============================================================================ */
+
+/* Sticky-Buehne der Scrollytelling-Akte. 100svh statt 100vh: auf iOS und Android ist 100vh die
+   Hoehe OHNE eingeblendete Adressleiste, der untere Teil der Buehne lag dann hinter der Leiste. */
+.sticky-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+/* Bedienhinweise je Eingabeart: "fahr ueber" ergibt auf einem Touchscreen keinen Sinn. */
+.only-touch { display: none; }
+@media (hover: none) {
+  .only-hover { display: none; }
+  .only-touch { display: inline; }
+}
+
+/* Akt 1, Telefon: die gerade erreichte Meilenstein-Karte steht unter der Grafik statt in ihr.
+   Alle Karten liegen uebereinander in einem Slot fester Hoehe, das Scrollen blendet um. */
+.ce-story-slot { position: relative; min-height: 7.5rem; margin-top: var(--s-3); }
+.ce-story-slot > * { position: absolute; inset: 0 0 auto 0; }
+
+/* Akt 2, Telefon: Jahr ueber, Epochen- und Feldkarte unter der Karte. Fester Slot, damit die
+   Buehne beim Umblenden nicht springt; ein langer Feldinhalt scrollt in sich. */
+.map-slot { position: relative; height: clamp(9.5rem, 30svh, 15rem); margin-top: var(--s-3); }
+.map-slot > .map-epoch { position: absolute; inset: 0 0 auto 0; }
+.map-slot > .map-info { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; }
+.map-legend-btn {
+  display: inline-flex; align-items: center; gap: var(--s-1);
+  background: transparent; border: 0; padding: 0; color: var(--muted); cursor: pointer; font: inherit;
+}
+
+@media (max-width: 719px) {
+  /* Lange Erklaerabsaetze in Mono: 12,5 px sind auf dem Telefon zu klein zum Lesen. */
+  p.t-data { font-size: 0.875rem; }
+  .useov-tag { font-size: 0.875rem; max-width: none; }
+  .useov-switch-hint { font-size: 0.8rem; }
+  .map-label { font-size: 0.72rem; padding: 4px 6px; }
+}
+
+/* Grobe Zeiger (Finger): Tap-Ziele mindestens 40 px hoch. Nur die Trefferflaeche waechst, die
+   sichtbare Mark bleibt gleich. */
+@media (pointer: coarse) {
+  .source-note > summary { min-height: 44px; }
+  .useov-row-btn { min-height: 40px; }
+  .ledger-navbtn, .ledger-reveal { min-height: 40px; padding-inline: 0.9rem; }
+  .map-legend-btn { min-height: 40px; padding-right: var(--s-2); }
+  .tap-min { min-height: 44px; min-width: 44px; }
+}
+
 /* nur fuer Screenreader */
 .sr-only {
   position: absolute !important; width: 1px !important; max-width: 1px !important;
